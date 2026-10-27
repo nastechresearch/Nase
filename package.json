@@ -1,0 +1,22 @@
+{
+  "name": "nase-companion",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "workspaces": [
+    "shared",
+    "relay",
+    "client",
+    "packages/mcp",
+    "web"
+  ],
+  "scripts": {
+    "test": "npm test --workspaces --if-present",
+    "relay": "npm run start -w @nase/relay --",
+    "demo": "npm run demo -w @nase/client",
+    "pair": "npm run pair -w @nase/client --",
+    "listen": "npm run listen -w @nase/client --",
+    "mcp": "npm run start -w nase-mcp --",
+    "typecheck": "tsc -p tsconfig.json"
+  }
+}

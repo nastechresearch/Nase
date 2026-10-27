@@ -1,0 +1,11 @@
+-keep class app.nase.companion.** { *; }
+-dontwarn com.google.crypto.tink.**
+-keep class com.google.crypto.tink.** { *; }
+-keep class org.vosk.** { *; }
+-keep class com.sun.jna.** { *; }
+-keep class rikka.shizuku.** { *; }
+-keep class app.nase.companion.display.NaseDisplayUserService { *; }
+-keep class app.nase.companion.display.INaseDisplay { *; }
+-keep class app.nase.companion.display.INaseDisplay$Stub { *; }
+-dontwarn org.vosk.**
+-dontwarn com.sun.jna.**

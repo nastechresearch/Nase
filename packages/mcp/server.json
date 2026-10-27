@@ -1,0 +1,73 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.oroplex/nase",
+  "description": "MCP server that lets an AI assistant see and drive your Android phone through the Nase app",
+  "repository": {
+    "url": "https://github.com/oroplex/nase",
+    "source": "github",
+    "subfolder": "packages/mcp"
+  },
+  "version": "0.6.4",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "nase-mcp",
+      "version": "0.6.4",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "NASE_LISTEN",
+          "description": "Set to 1 to keep the phone pairing and accept asks typed or spoken on the phone",
+          "isRequired": false,
+          "format": "string"
+        },
+        {
+          "name": "PONY_LISTEN",
+          "description": "Backward compat: Set to 1 to keep the phone pairing and accept asks typed or spoken on the phone",
+          "isRequired": false,
+          "format": "string"
+        },
+        {
+          "name": "NASE_RELAY",
+          "description": "Relay URL (default https://relay.nase.karlmagendavid.com)",
+          "isRequired": false,
+          "format": "string"
+        },
+        {
+          "name": "PONY_RELAY",
+          "description": "Backward compat: Relay URL",
+          "isRequired": false,
+          "format": "string"
+        },
+        {
+          "name": "NASE_CLIENT_NAME",
+          "description": "Assistant name shown on the phone",
+          "isRequired": false,
+          "format": "string"
+        },
+        {
+          "name": "PONY_CLIENT_NAME",
+          "description": "Backward compat: Assistant name shown on the phone",
+          "isRequired": false,
+          "format": "string"
+        },
+        {
+          "name": "NASE_STATE",
+          "description": "Path of the pairing file used in listen mode",
+          "isRequired": false,
+          "format": "string"
+        },
+        {
+          "name": "PONY_STATE",
+          "description": "Backward compat: Path of the pairing file used in listen mode",
+          "isRequired": false,
+          "format": "string"
+        }
+      ]
+    }
+  ],
+  "title": "Nase",
+  "websiteUrl": "https://nase.karlmagendavid.com"
+}
