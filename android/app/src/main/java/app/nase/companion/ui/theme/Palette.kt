@@ -4,8 +4,8 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 
 /**
- * Nightfall, Pony's color system. Ink and moonlight carry the interface,
- * iris is Pony's own voice, and mane gold is kept for moments of trust:
+ * Nightfall, Nase's color system. Ink and moonlight carry the interface,
+ * iris is Nase's own voice, and mane gold is kept for moments of trust:
  * the safety code, a verified connection, and success.
  * Every text pair here meets WCAG AA; ContrastTest keeps it that way.
  */

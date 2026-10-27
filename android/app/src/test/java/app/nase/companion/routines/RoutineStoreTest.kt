@@ -113,5 +113,5 @@ class RoutineStoreTest {
         return RoutineStore(tempFile(), newId = { "id_${counter++}" })
     }
 
-    private fun tempFile(): File = File.createTempFile("pony-routines", ".json").apply { delete() }
+    private fun tempFile(): File = File.createTempFile("nase-routines", ".json").apply { delete() }
 }

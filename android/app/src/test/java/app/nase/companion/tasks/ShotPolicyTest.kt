@@ -7,23 +7,23 @@ import org.junit.Test
 class ShotPolicyTest {
     @Test
     fun keepsNasesOwnScreenInTheBackgroundWhenTheOwnerAllowsIt() {
-        assertTrue(ShotPolicy.keepThumbnail(keepSetting = true, ponyForeground = false, ofOtherApp = false))
+        assertTrue(ShotPolicy.keepThumbnail(keepSetting = true, naseForeground = false, ofOtherApp = false))
     }
 
     @Test
     fun dropsAnotherAppsScreenEvenWhenTheOwnerAllowsScreenshots() {
         // Private content from the app Nase is driving never lands on disk.
-        assertFalse(ShotPolicy.keepThumbnail(keepSetting = true, ponyForeground = false, ofOtherApp = true))
+        assertFalse(ShotPolicy.keepThumbnail(keepSetting = true, naseForeground = false, ofOtherApp = true))
     }
 
     @Test
     fun dropsAnythingCapturedWhileNaseIsInFront() {
         // Nase's Ask screen shows the step list; a shot of it would feed back.
-        assertFalse(ShotPolicy.keepThumbnail(keepSetting = true, ponyForeground = true, ofOtherApp = false))
+        assertFalse(ShotPolicy.keepThumbnail(keepSetting = true, naseForeground = true, ofOtherApp = false))
     }
 
     @Test
     fun honoursTheOwnerTurningScreenshotsOff() {
-        assertFalse(ShotPolicy.keepThumbnail(keepSetting = false, ponyForeground = false, ofOtherApp = false))
+        assertFalse(ShotPolicy.keepThumbnail(keepSetting = false, naseForeground = false, ofOtherApp = false))
     }
 }

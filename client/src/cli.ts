@@ -11,20 +11,20 @@ import { DEFAULT_RELAY, PAIRING_TTL_MS, pairPageLink, pairingLink, type PressKey
 
 import { SessionFile, defaultStatePath, runListen, type ListenEvent } from "./listen.ts";
 import { takeDisplay } from "./repl-args.ts";
-import { PonySession } from "./session.ts";
+import { NaseSession } from "./session.ts";
 
 const program = new Command();
 program
-  .name("pony-phone")
-  .description("Bot-side client for the Pony Companion phone")
-  .option("-r, --relay <url>", "Relay HTTP origin", process.env.PONY_RELAY ?? DEFAULT_RELAY)
+  .name("nase-phone")
+  .description("Bot-side client for the Nase Companion phone")
+  .option("-r, --relay <url>", "Relay HTTP origin", process.env.NASE_RELAY ?? DEFAULT_RELAY)
   .option("--client <name>", "Name to show on the phone after pairing");
 
 program
   .command("listen")
   .description("Stay paired and hear every request the owner makes, through network drops and restarts")
-  .option("--state <file>", "Where the pairing is kept (holds a private key)", process.env.PONY_STATE ?? defaultStatePath("listen.json"))
-  .option("--exec <command>", "Run this for each request. The text is in $PONY_REQUEST_TEXT and on stdin; what it prints is the reply")
+  .option("--state <file>", "Where the pairing is kept (holds a private key)", process.env.NASE_STATE ?? defaultStatePath("listen.json"))
+  .option("--exec <command>", "Run this for each request. The text is in $NASE_REQUEST_TEXT and on stdin; what it prints is the reply")
   .option("--exec-timeout <seconds>", "Longest a --exec command may run", "120")
   .option("--new", "End the saved pairing and pair again")
   .option("--json", "Print events as JSON lines on stdout (messages go to stderr)")
@@ -45,7 +45,7 @@ program
       emit,
       say: human,
       showPairing: async ({ payload, link, pageLink }) => {
-        human("Scan this QR with Pony on your phone. It expires in 15 minutes.");
+        human("Scan this QR with Nase on your phone. It expires in 15 minutes.");
         human(`Or open this link on the phone: ${link}`);
         human(`If this terminal is on the phone, open: ${pageLink}\n`);
         human(await terminalQr(payload));
@@ -74,7 +74,7 @@ program
 program
   .command("unpair")
   .description("End the session saved by `listen` and delete it")
-  .option("--state <file>", "The saved pairing", process.env.PONY_STATE ?? defaultStatePath("listen.json"))
+  .option("--state <file>", "The saved pairing", process.env.NASE_STATE ?? defaultStatePath("listen.json"))
   .action(async (opts: { state: string }) => {
     const store = new SessionFile(opts.state);
     const saved = store.load();
@@ -82,7 +82,7 @@ program
       console.log("Nothing to unpair.");
       return;
     }
-    const session = PonySession.resumeBot(saved);
+    const session = NaseSession.resumeBot(saved);
     await session.untilReady(4_000);
     await session.end();
     store.clear();
@@ -96,10 +96,10 @@ program
   .action(async (opts: { png?: string }, cmd) => {
     const relay = cmd.optsWithGlobals().relay as string;
     const client = cmd.optsWithGlobals().client as string | undefined;
-    const session = await PonySession.createBot({ relayHttp: relay, clientName: client });
+    const session = await NaseSession.createBot({ relayHttp: relay, clientName: client });
     const payload = session.qrJson();
     const clientQuery = client?.trim().toLowerCase() === "grok bot" ? "grokbot" : client?.trim() || undefined;
-    console.log("Scan this QR with Pony Companion. Pairing expires in 15 minutes.\n");
+    console.log("Scan this QR with Nase Companion. Pairing expires in 15 minutes.\n");
     console.log(payload);
     console.log(`\nOr open this link on the phone: ${pairingLink(JSON.parse(payload), clientQuery)}`);
     console.log(`If this screen is on the phone, open: ${pairPageLink(JSON.parse(payload), clientQuery)}`);
@@ -127,7 +127,7 @@ for (const spec of [
     .description(spec[1])
     .requiredOption("--session-json <payload>", "Pairing JSON from `pair` (advanced)")
     .action(() => {
-      console.error("Use `pony-phone pair` and type commands in the REPL.");
+      console.error("Use `nase-phone pair` and type commands in the REPL.");
       process.exitCode = 2;
     });
 }
@@ -136,7 +136,7 @@ program
   .command("repl")
   .description("Hidden: used after pair")
   .action(() => {
-    console.error("Run `pony-phone pair` instead.");
+    console.error("Run `nase-phone pair` instead.");
     process.exitCode = 2;
   });
 
@@ -146,12 +146,12 @@ function terminalQr(payload: string): Promise<string> {
   return new Promise((resolve) => qrterminal.generate(payload, { small: true }, (qr: string) => resolve(qr)));
 }
 
-async function repl(session: PonySession): Promise<void> {
+async function repl(session: NaseSession): Promise<void> {
   const rl = readline.createInterface({ input, output });
   printHelp();
   try {
     while (true) {
-      const line = (await rl.question("pony> ")).trim();
+      const line = (await rl.question("nase> ")).trim();
       if (!line) continue;
       const [cmd, ...rest] = line.split(/\s+/);
       if (cmd === "quit" || cmd === "exit" || cmd === "disconnect") {
@@ -187,7 +187,7 @@ async function repl(session: PonySession): Promise<void> {
   }
 }
 
-async function dispatch(session: PonySession, cmd: string, rest: string[]) {
+async function dispatch(session: NaseSession, cmd: string, rest: string[]) {
   const { args, display } = takeDisplay(rest);
   const where = display ? { display } : {};
   switch (cmd) {

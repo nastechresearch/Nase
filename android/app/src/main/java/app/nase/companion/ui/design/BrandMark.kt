@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import app.nase.companion.ui.theme.Palette
 import app.nase.companion.ui.theme.SquircleShape
 
-/** The pony head from the launcher icon: white head, mane-gold mane, iris eye. */
+/** The nase head from the launcher icon: white head, mane-gold mane, iris eye. */
 val NaseMarkVector: ImageVector by lazy {
     ImageVector.Builder(
         name = "Nase.Mark",

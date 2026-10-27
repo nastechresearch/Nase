@@ -6,7 +6,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class AdapterRequestTest {
-    private val key = "sk-pony-PLAINTEXT-secret-9999"
+    private val key = "sk-nase-PLAINTEXT-secret-9999"
     private val shot = "abcJPEG=="
 
     @Test

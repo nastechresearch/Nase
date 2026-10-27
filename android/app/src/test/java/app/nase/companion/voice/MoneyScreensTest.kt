@@ -69,7 +69,7 @@ class MoneyScreensTest {
     }
 
     @Test
-    fun ponyOwnUiIsNeverAMoneyScreen() {
+    fun naseOwnUiIsNeverAMoneyScreen() {
         assertFalse(MoneyScreens.matches(packageName = "app.nase.companion", screenText = "Send\nPay"))
         assertFalse(MoneyScreens.matches(packageName = "app.nase.companion.debug", activity = "PayActivity"))
     }

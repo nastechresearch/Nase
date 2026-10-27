@@ -8,4 +8,4 @@ services:
     environment:
       PORT: "8787"
       # Set this to the URL the phone can reach, if it differs from the Host header.
-      # PONY_RELAY_URL: "wss://relay.pony.karlmagendavid.com"
+      # NASE_RELAY_URL: "wss://relay.nase.karlmagendavid.com"

@@ -29,7 +29,7 @@ class VirtualDisplayHost(private val context: Context) {
     fun ensure(width: Int, height: Int, density: Int): Int? {
         display?.display?.displayId?.let { if (it > 0) return it }
         return try {
-            val worker = HandlerThread("pony-display").also { it.start() }
+            val worker = HandlerThread("nase-display").also { it.start() }
             thread = worker
             val handler = Handler(worker.looper)
             val images = ImageReader.newInstance(width.coerceAtLeast(1), height.coerceAtLeast(1), PixelFormat.RGBA_8888, 2)

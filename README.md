@@ -41,13 +41,13 @@ The default relay is Nase Cloud at `https://relay.nase.karlmagendavid.com`. A pr
 
 - An Android phone on **Android 11** or newer
 - **Optional:** [Shizuku](https://shizuku.rikka.app/) if you want Nase to run *other* apps on the hidden screen. Without it, Android will only place Nase's own activities there; everything else, system apps included, bounces to your display (Nase asks first).
-- **Node.js 20+** only if you run the MCP server or the `pony-phone` CLI yourself. A key on the phone or the Grok Bot template needs no computer.
+- **Node.js 20+** only if you run the MCP server or the `nase-phone` CLI yourself. A key on the phone or the Grok Bot template needs no computer.
 
 Distribution is a sideloaded APK, not Google Play. See [PLAY_POLICY.md](PLAY_POLICY.md).
 
 ## Install
 
-1. On the phone, download [pony-latest.apk](https://github.com/oroplex/pony/releases/latest/download/pony-latest.apk) and open it. If Android asks, allow your browser to install unknown apps. (Optional: check the file against the SHA-256 above.)
+1. On the phone, download [nase-latest.apk](https://github.com/oroplex/nase/releases/latest/download/nase-latest.apk) and open it. If Android asks, allow your browser to install unknown apps. (Optional: check the file against the SHA-256 above.)
 2. Open Nase, read what it does, and agree to the privacy promise.
 3. Turn on **Nase control** in **Settings › Accessibility**. On Android 13 and newer the switch may be greyed out: first open Nase's **App info**, tap the **⋮** menu, and choose **Allow restricted settings**.
 4. Run the first task if you like (Nase opens Calculator and adds 2 + 2).
@@ -65,10 +65,10 @@ A key on the phone needs no pairing. For an MCP host or Grok Bot, the quickest w
 **Any MCP host**
 
 1. On your computer, start the MCP server ([MCP setup](#mcp-setup)) and add it to your host.
-2. Ask the assistant to pair. It calls `pair`, which returns the one-tap link (`pairPageLink`), a `pony://pair` link, and a QR image.
+2. Ask the assistant to pair. It calls `pair`, which returns the one-tap link (`pairPageLink`), a `nase://pair` link, and a QR image.
 3. Open the link on the phone, or scan the QR. Compare the safety code, tap **It matches**, and share the screen.
 
-In listen mode the server remembers the pairing (`~/.pony/mcp.json`) and rejoins on start.
+In listen mode the server remembers the pairing (`~/.nase/mcp.json`) and rejoins on start.
 
 **Grok Bot**
 
@@ -149,17 +149,17 @@ The unsigned artifact is `android/app/build/outputs/apk/release/app-release-unsi
 
 ```bash
 $ANDROID_HOME/build-tools/36.0.0/apksigner sign --ks /path/to/your-release.jks \
-  --out pony-signed.apk app/build/outputs/apk/release/app-release-unsigned.apk
+  --out nase-signed.apk app/build/outputs/apk/release/app-release-unsigned.apk
 ```
 
-Settings → Check for updates reads `https://download.pony.karlmagendavid.com/latest.json` and only installs an APK signed with the same certificate as the app already on the phone. A self-built install will not accept the official update stream.
+Settings → Check for updates reads `https://download.nase.karlmagendavid.com/latest.json` and only installs an APK signed with the same certificate as the app already on the phone. A self-built install will not accept the official update stream.
 
 ## Layout
 
 ```
 shared/         protocol + E2E crypto (TypeScript)
 relay/          WebSocket pairing relay (Node, Docker)
-client/         pony-phone CLI (pair, listen, unpair), bot session, mock phone
+client/         nase-phone CLI (pair, listen, unpair), bot session, mock phone
 packages/mcp/   MCP server (@nase/mcp)
 web/            pairing hand-off page (pair.html)
 android/        Nase Companion app (Kotlin, Jetpack Compose)
@@ -168,7 +168,7 @@ android/        Nase Companion app (Kotlin, Jetpack Compose)
 ```bash
 docker compose up --build        # relay on :8787
 npm run listen                   # print each ask from the phone
-npm run pair -- --relay https://relay.pony.karlmagendavid.com
+npm run pair -- --relay https://relay.nase.karlmagendavid.com
 ```
 
 Relay environment is documented in [`relay/.env.example`](relay/.env.example). What changed in each release is in [CHANGELOG.md](CHANGELOG.md).

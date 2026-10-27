@@ -75,5 +75,5 @@ class MemoryStoreTest {
         assertEquals("value ${MemoryStore.MAX_ENTRIES + 9}", store.get("fact_${MemoryStore.MAX_ENTRIES + 9}")?.value)
     }
 
-    private fun tempFile(): File = File.createTempFile("pony-memory", ".json").apply { delete() }
+    private fun tempFile(): File = File.createTempFile("nase-memory", ".json").apply { delete() }
 }

@@ -2,7 +2,7 @@
 
 MCP server for [Nase](https://nase.karlmagendavid.com): it lets an AI assistant see and drive your Android phone through the Nase app, over an end-to-end encrypted relay.
 
-You need the Pony app on an Android 11+ phone (see the [project README](https://github.com/oroplex/pony#install)) and Node.js 20+.
+You need the Nase app on an Android 11+ phone (see the [project README](https://github.com/oroplex/nase#install)) and Node.js 20+.
 
 > **Not on npm yet.** Until `nase-mcp` is published, run it from a clone (see [MCP setup](https://github.com/oroplex/nase#mcp-setup)). The `npx` commands below work once it's live.
 
@@ -19,7 +19,7 @@ You need the Pony app on an Android 11+ phone (see the [project README](https://
 }
 ```
 
-The assistant calls `pair` and shows a QR code or a `pony://pair` link. Scan it with the phone, compare the six-digit safety code, and accept screen sharing. With `--listen` the pairing is kept in `~/.pony/mcp.json` and rejoined on start.
+The assistant calls `pair` and shows a QR code or a `nase://pair` link. Scan it with the phone, compare the six-digit safety code, and accept screen sharing. With `--listen` the pairing is kept in `~/.nase/mcp.json` and rejoined on start.
 
 ## Streamable HTTP, once published on npm
 

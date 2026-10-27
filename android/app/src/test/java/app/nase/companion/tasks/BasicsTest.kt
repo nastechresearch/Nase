@@ -14,7 +14,7 @@ class BasicsTest {
             "open the calculator and add 2 plus 2",
             "Open calculator and then add two plus two.",
             "add 2 and 2 in the calculator",
-            "hey pony, open the calculator and add 2 + 2 please",
+            "hey nase, open the calculator and add 2 + 2 please",
         )) {
             val skills = Basics.parse(text)
             assertEquals(text, 2, skills?.size)

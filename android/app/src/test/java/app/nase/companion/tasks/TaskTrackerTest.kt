@@ -239,7 +239,7 @@ class TaskTrackerTest {
         assertNull(tracker.stepOn(session.id, StepKind.Tap, "late tap"))
     }
 
-    private fun tempRoot(): File = File.createTempFile("pony-tasks", "").apply {
+    private fun tempRoot(): File = File.createTempFile("nase-tasks", "").apply {
         delete()
         mkdirs()
     }

@@ -8,7 +8,7 @@ import { createRelay } from "../../relay/src/server.ts";
 
 import { RequestListener } from "./listen.ts";
 import { MockPhone } from "./mock-phone.ts";
-import { PonySession } from "./session.ts";
+import { NaseSession } from "./session.ts";
 
 const FAST = { initialMs: 100, maxMs: 1_000 };
 
@@ -16,13 +16,13 @@ async function main(): Promise<void> {
   const relay = await createRelay({ host: "127.0.0.1", port: 0 });
   console.log(`relay ${relay.url}`);
 
-  const bot = await PonySession.createBot({ relayHttp: relay.url, clientName: "Grok Bot", reconnect: FAST });
+  const bot = await NaseSession.createBot({ relayHttp: relay.url, clientName: "Grok Bot", reconnect: FAST });
   console.log("pairing payload:");
   console.log(bot.qrJson());
 
   const phone = new MockPhone();
   phone.requests = [];
-  const phoneSession = await PonySession.createPhone(bot.qrJson(), undefined, { reconnect: FAST });
+  const phoneSession = await NaseSession.createPhone(bot.qrJson(), undefined, { reconnect: FAST });
   phone.attach(phoneSession);
 
   await Promise.all([bot.waitUntilReady(), phoneSession.waitUntilReady()]);
@@ -34,7 +34,7 @@ async function main(): Promise<void> {
     ["screenshot", () => bot.request("screenshot")],
     ["tap", () => bot.request("tap", { x: 120, y: 340 })],
     ["swipe", () => bot.request("swipe", { x1: 100, y1: 800, x2: 100, y2: 200, durationMs: 180 })],
-    ["type", () => bot.request("type", { text: "hello from pony" })],
+    ["type", () => bot.request("type", { text: "hello from nase" })],
     ["press", () => bot.request("press", { key: "home" })],
     ["open_app", () => bot.request("open_app", { packageName: "com.android.settings" })],
     ["ui_tree", () => bot.request("ui_tree")],

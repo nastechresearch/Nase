@@ -17,7 +17,7 @@ class RelayUrlTest {
     @Test
     fun tailscaleAddressesDialTheCleartextAlias() {
         assertEquals(
-            "ws://pony-tailscale.invalid:8787/ws",
+            "ws://nase-tailscale.invalid:8787/ws",
             RelayClient.dialUrl("http://100.64.8.8:8787"),
         )
         assertEquals(
@@ -32,8 +32,8 @@ class RelayUrlTest {
 
     @Test
     fun lanAddressesDialTheLanAlias() {
-        assertEquals("ws://pony-lan.invalid:8787/ws", RelayClient.dialUrl("http://192.168.1.20:8787"))
-        assertEquals("ws://pony-lan.invalid:8787/ws", RelayClient.dialUrl("ws://10.0.0.5:8787/ws"))
+        assertEquals("ws://nase-lan.invalid:8787/ws", RelayClient.dialUrl("http://192.168.1.20:8787"))
+        assertEquals("ws://nase-lan.invalid:8787/ws", RelayClient.dialUrl("ws://10.0.0.5:8787/ws"))
         assertNull(RelayClient.aliasFor("8.8.8.8"))
         assertNull(RelayClient.aliasFor("127.0.0.1"))
     }
@@ -48,6 +48,6 @@ class RelayUrlTest {
         assertTrue(config.contains(RelayClient.TAILSCALE_DIAL_HOST))
         assertTrue(config.contains(RelayClient.LAN_DIAL_HOST))
         val allowed = Regex("<domain[^>]*>([^<]+)</domain>").findAll(config).map { it.groupValues[1] }.toSet()
-        assertEquals(setOf("localhost", "127.0.0.1", "ts.net", "pony-tailscale.invalid", "pony-lan.invalid"), allowed)
+        assertEquals(setOf("localhost", "127.0.0.1", "ts.net", "nase-tailscale.invalid", "nase-lan.invalid"), allowed)
     }
 }

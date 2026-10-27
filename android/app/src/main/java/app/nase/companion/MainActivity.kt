@@ -28,7 +28,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import app.nase.companion.a11y.NaseAccessibilityService
 import app.nase.companion.brain.GrokArrival
-import app.nase.companion.brain.PONY_GROK_BOT_TEMPLATE_URL
+import app.nase.companion.brain.NASE_GROK_BOT_TEMPLATE_URL
 import app.nase.companion.display.ShizukuBridge
 import app.nase.companion.net.CleartextPolicy
 import app.nase.companion.overlay.AppVisibility
@@ -186,7 +186,7 @@ class MainActivity : ComponentActivity() {
         openShizuku = ::openShizuku,
         openBuildNumber = { openDeepLink(Intent(Settings.ACTION_DEVICE_INFO_SETTINGS), Intent(Settings.ACTION_SETTINGS)) },
         openWirelessDebugging = ::openWirelessDebugging,
-        openTemplate = { openUrl(PONY_GROK_BOT_TEMPLATE_URL) },
+        openTemplate = { openUrl(NASE_GROK_BOT_TEMPLATE_URL) },
         openTailscale = { openUrl(CleartextPolicy.TAILSCALE_URL) },
         openUrl = ::openUrl,
         testVoice = ::testVoice,
@@ -419,14 +419,14 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun testVoice() {
-        thread(name = "pony-test-voice") {
+        thread(name = "nase-test-voice") {
             val ok = SpeechOutput.speak(this, "Nase can hear you.", vm.speechRate, vm.ttsVoice)
             if (!ok) Handler(Looper.getMainLooper()).post { vm.note = "Nase couldn't speak. Check the phone's text-to-speech settings." }
         }
     }
 
     private fun previewVoice(name: String) {
-        thread(name = "pony-preview-voice") {
+        thread(name = "nase-preview-voice") {
             val ok = SpeechOutput.speak(this, "Hi, I'm Nase. This is how I'll sound.", vm.speechRate, name)
             if (!ok) Handler(Looper.getMainLooper()).post { vm.note = "That voice needs to be downloaded first. Open your phone's text-to-speech settings to add it." }
         }

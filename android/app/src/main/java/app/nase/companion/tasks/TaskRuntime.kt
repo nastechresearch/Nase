@@ -58,7 +58,7 @@ object TaskRuntime {
     ): TaskStep? {
         val keep = ShotPolicy.keepThumbnail(
             keepSetting = app?.let { VoicePrefs.keepScreenshots(it) } ?: false,
-            ponyForeground = AppVisibility.visible.value,
+            naseForeground = AppVisibility.visible.value,
             ofOtherApp = ofOtherApp,
         )
         val thumb = if (keep && jpeg != null) thumbnail(jpeg) else null
@@ -79,7 +79,7 @@ object TaskRuntime {
     ): TaskStep? {
         val keep = ShotPolicy.keepThumbnail(
             keepSetting = app?.let { VoicePrefs.keepScreenshots(it) } ?: false,
-            ponyForeground = AppVisibility.visible.value,
+            naseForeground = AppVisibility.visible.value,
             ofOtherApp = ofOtherApp,
         )
         val thumb = if (keep && jpeg != null) thumbnail(jpeg) else null

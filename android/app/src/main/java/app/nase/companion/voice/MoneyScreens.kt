@@ -110,7 +110,7 @@ object MoneyScreens {
         "send",
     )
 
-    private const val PONY_PACKAGE = "app.nase.companion"
+    private const val NASE_PACKAGE = "app.nase.companion"
 
     private val knownByPackage: Map<String, KnownApp> = KNOWN_APPS.associateBy { it.packageName }
 
@@ -181,6 +181,6 @@ object MoneyScreens {
 
     private fun isOwnApp(packageName: String?): Boolean {
         val pkg = packageName ?: return false
-        return pkg == PONY_PACKAGE || pkg.startsWith("$PONY_PACKAGE.")
+        return pkg == NASE_PACKAGE || pkg.startsWith("$NASE_PACKAGE.")
     }
 }

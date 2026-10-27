@@ -38,7 +38,7 @@ sealed class UpdateState {
  * certificate as the Nase already on this phone.
  */
 object Updater {
-    private val io = Executors.newSingleThreadExecutor { Thread(it, "pony-update") }
+    private val io = Executors.newSingleThreadExecutor { Thread(it, "nase-update") }
     private val http = OkHttpClient.Builder()
         .connectTimeout(15, TimeUnit.SECONDS)
         .readTimeout(60, TimeUnit.SECONDS)
@@ -82,7 +82,7 @@ object Updater {
         }
         _state.value = UpdateState.Downloading(manifest, 0f)
         io.execute {
-            val file = File(File(app.cacheDir, "updates").apply { mkdirs() }, "pony-${manifest.versionCode}.apk")
+            val file = File(File(app.cacheDir, "updates").apply { mkdirs() }, "nase-${manifest.versionCode}.apk")
             try {
                 val request = Request.Builder().url(manifest.apkUrl).build()
                 val digest = MessageDigest.getInstance("SHA-256")
@@ -184,7 +184,7 @@ object Updater {
         }
         val id = installer.createSession(params)
         installer.openSession(id).use { session ->
-            session.openWrite("pony.apk", 0, file.length()).use { out ->
+            session.openWrite("nase.apk", 0, file.length()).use { out ->
                 file.inputStream().use { it.copyTo(out) }
                 session.fsync(out)
             }

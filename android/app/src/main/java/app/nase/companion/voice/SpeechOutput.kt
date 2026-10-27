@@ -47,7 +47,7 @@ object SpeechOutput {
         if (!ready.await(8, TimeUnit.SECONDS) || failed) return false
         val tts = engine.get() ?: return false
         val done = CountDownLatch(1)
-        val id = "pony-${++utterance}"
+        val id = "nase-${++utterance}"
         main.post {
             tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
                 override fun onStart(utteranceId: String?) = Unit

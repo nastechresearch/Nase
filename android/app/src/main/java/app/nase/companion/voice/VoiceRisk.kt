@@ -60,11 +60,11 @@ object SafetyPolicy {
     private val amount = Regex("([$€£¥₹]\\s?\\d)|(\\d[\\d,.]*\\s?(usd|eur|gbp|dollars?|euros?))", RegexOption.IGNORE_CASE)
 
     /** Nase's own package, so its own UI can be told apart from the apps it drives. */
-    private const val PONY_PACKAGE = "app.nase.companion"
+    private const val NASE_PACKAGE = "app.nase.companion"
 
     private fun isOwnApp(packageName: String?): Boolean {
         val pkg = packageName ?: return false
-        return pkg == PONY_PACKAGE || pkg.startsWith("$PONY_PACKAGE.")
+        return pkg == NASE_PACKAGE || pkg.startsWith("$NASE_PACKAGE.")
     }
 
     fun forTap(target: TapTarget): Verdict {
@@ -139,7 +139,7 @@ object VoiceWords {
         val normalized = text.trim().lowercase()
         if (normalized.isEmpty()) return false
         return normalized == "stop" ||
-            normalized == "stop pony" ||
+            normalized == "stop nase" ||
             normalized == "cancel" ||
             normalized == "never mind" ||
             normalized.startsWith("stop ")

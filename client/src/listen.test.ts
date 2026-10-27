@@ -9,18 +9,18 @@ import { createRelay, type StartedRelay } from "../../relay/src/server.ts";
 
 import { RequestListener, SessionFile, runExec, runListen, type ListenEvent, type ListenHandle, type OwnerRequest } from "./listen.ts";
 import { MockPhone } from "./mock-phone.ts";
-import { PonySession, type ReconnectOptions } from "./session.ts";
+import { NaseSession, type ReconnectOptions } from "./session.ts";
 
 const FAST: ReconnectOptions = { initialMs: 40, maxMs: 200 };
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 let relay: StartedRelay | undefined;
 let dir = "";
-const sessions: PonySession[] = [];
+const sessions: NaseSession[] = [];
 const handles: ListenHandle[] = [];
 
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), "pony-listen-"));
+  dir = mkdtempSync(join(tmpdir(), "nase-listen-"));
 });
 
 afterEach(async () => {
@@ -43,8 +43,8 @@ async function until(check: () => boolean, what: string, timeoutMs = 5_000): Pro
   }
 }
 
-async function phoneFor(payload: string, phone: MockPhone): Promise<PonySession> {
-  const session = await PonySession.createPhone(payload, undefined, { reconnect: FAST });
+async function phoneFor(payload: string, phone: MockPhone): Promise<NaseSession> {
+  const session = await NaseSession.createPhone(payload, undefined, { reconnect: FAST });
   sessions.push(session);
   phone.attach(session);
   await session.waitUntilReady();
@@ -54,7 +54,7 @@ async function phoneFor(payload: string, phone: MockPhone): Promise<PonySession>
 describe("RequestListener", () => {
   it("keeps a standing wait open and hands over every request in order", async () => {
     relay = await createRelay({ host: "127.0.0.1", port: 0 });
-    const bot = await PonySession.createBot({ relayHttp: relay.url, reconnect: FAST });
+    const bot = await NaseSession.createBot({ relayHttp: relay.url, reconnect: FAST });
     sessions.push(bot);
     const phone = new MockPhone();
     phone.requests = [];
@@ -90,11 +90,11 @@ describe("RequestListener", () => {
 
   it("picks up a request the phone handed out just before the link dropped", async () => {
     relay = await createRelay({ host: "127.0.0.1", port: 0 });
-    const bot = await PonySession.createBot({ relayHttp: relay.url, reconnect: FAST });
+    const bot = await NaseSession.createBot({ relayHttp: relay.url, reconnect: FAST });
     sessions.push(bot);
     const phone = new MockPhone();
     phone.requests = [];
-    const phoneSession = await PonySession.createPhone(bot.qrJson(), undefined, { reconnect: FAST });
+    const phoneSession = await NaseSession.createPhone(bot.qrJson(), undefined, { reconnect: FAST });
     sessions.push(phoneSession);
     let release: (() => void) | undefined;
     phoneSession.onRequest = async (msg) => {
@@ -121,11 +121,11 @@ describe("RequestListener", () => {
 
   it("gets a request again, once, when the reply carrying it was lost", async () => {
     relay = await createRelay({ host: "127.0.0.1", port: 0 });
-    const bot = await PonySession.createBot({ relayHttp: relay.url, reconnect: FAST });
+    const bot = await NaseSession.createBot({ relayHttp: relay.url, reconnect: FAST });
     sessions.push(bot);
     const phone = new MockPhone();
     phone.requests = [];
-    const phoneSession = await PonySession.createPhone(bot.qrJson(), undefined, { reconnect: FAST });
+    const phoneSession = await NaseSession.createPhone(bot.qrJson(), undefined, { reconnect: FAST });
     sessions.push(phoneSession);
     let swallow = true;
     phoneSession.onRequest = async (msg) => {
@@ -185,7 +185,7 @@ describe("runExec", () => {
     const script = join(dir, "echo.mjs");
     writeFileSync(
       script,
-      "let input='';process.stdin.on('data',d=>input+=d).on('end',()=>{process.stdout.write(`${process.env.PONY_REQUEST_TEXT}|${process.env.PONY_REQUEST_SOURCE}|${input.trim()}`)})",
+      "let input='';process.stdin.on('data',d=>input+=d).on('end',()=>{process.stdout.write(`${process.env.NASE_REQUEST_TEXT}|${process.env.NASE_REQUEST_SOURCE}|${input.trim()}`)})",
     );
     const request = { requestId: "r1", text: "it's $HOME; `rm -rf` \"quoted\"", source: "voice", receivedAt: 0 };
     const reply = await runExec(`node "${script}"`, request);
@@ -214,11 +214,11 @@ describe("runListen", () => {
     relay = await createRelay({ host: "127.0.0.1", port: 0 });
     const statePath = join(dir, "listen.json");
     const script = join(dir, "reply.mjs");
-    writeFileSync(script, "process.stdout.write(`Done: ${process.env.PONY_REQUEST_TEXT}`)");
+    writeFileSync(script, "process.stdout.write(`Done: ${process.env.NASE_REQUEST_TEXT}`)");
     const phone = new MockPhone();
     phone.requests = [];
     const events: ListenEvent[] = [];
-    let phoneSession: PonySession | undefined;
+    let phoneSession: NaseSession | undefined;
 
     const first = await runListen({
       relayHttp: relay.url,
@@ -273,7 +273,7 @@ describe("runListen", () => {
     const statePath = join(dir, "listen.json");
     const phone = new MockPhone();
     phone.requests = [];
-    let phoneSession: PonySession | undefined;
+    let phoneSession: NaseSession | undefined;
     const lines: string[] = [];
     const handle = await runListen({
       relayHttp: relay.url,
@@ -297,7 +297,7 @@ describe("runListen", () => {
   it("drops a saved pairing the relay no longer knows and says so", async () => {
     relay = await createRelay({ host: "127.0.0.1", port: 0 });
     const statePath = join(dir, "listen.json");
-    const bot = await PonySession.createBot({ relayHttp: relay.url, reconnect: FAST });
+    const bot = await NaseSession.createBot({ relayHttp: relay.url, reconnect: FAST });
     sessions.push(bot);
     await phoneFor(bot.qrJson(), new MockPhone());
     await bot.waitUntilReady();

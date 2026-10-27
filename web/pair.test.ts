@@ -17,7 +17,7 @@ import {
 
 const payload: PairingPayload = {
   v: 1,
-  relay: "wss://relay.pony.karlmagendavid.com",
+  relay: "wss://relay.nase.karlmagendavid.com",
   token: "cd".repeat(32),
   pk: "z_0qekXbJeYuSG-eeLL65tW9xFgQxAHZFosjY6MRlSk",
 };
@@ -50,12 +50,12 @@ describe("pair page builder", () => {
     const url = intentUrl(fields);
     expect(url.startsWith("intent://pair?")).toBe(true);
     expect(url).toContain(`package=${ANDROID_PACKAGE}`);
-    expect(url).toContain("scheme=pony");
+    expect(url).toContain("scheme=nase");
     expect(url).toContain(`S.browser_fallback_url=${encodeURIComponent(playStoreUrl())}`);
     expect(url.endsWith(";end")).toBe(true);
   });
 
-  it("backup pony:// link parses back to the original payload via the real protocol", () => {
+  it("backup nase:// link parses back to the original payload via the real protocol", () => {
     const fields = readParams(queryFrom(pairPageLink(payload)));
     expect(parsePairingInput(backupLink(fields))).toEqual(payload);
   });
@@ -68,7 +68,7 @@ describe("pair page builder", () => {
 describe("pair page fragment and expiry", () => {
   const token = payload.token;
   const tapLink =
-    `https://download.pony.karlmagendavid.com/pair#v=1` +
+    `https://download.nase.karlmagendavid.com/pair#v=1` +
     `&relay=${encodeURIComponent(payload.relay)}&token=${token}&pk=${payload.pk}`;
 
   it("reads the pairing fields out of the fragment the tap link uses", () => {

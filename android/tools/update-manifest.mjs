@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 // Writes latest.json for the in-app updater from a signed release APK.
 //
-//   node android/tools/update-manifest.mjs pony-0.5.0.apk [--out latest.json] [--notes CHANGELOG.md]
+//   node android/tools/update-manifest.mjs nase-0.5.0.apk [--out latest.json] [--notes CHANGELOG.md]
 //
 // Upload latest.json and the APK (under the name printed as "apk") to
-// https://download.pony.karlmagendavid.com/. The phone only installs an update
+// https://download.nase.karlmagendavid.com/. The phone only installs an update
 // whose SHA-256 matches and whose signing certificate matches the installed app.
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -33,7 +33,7 @@ if (packageName !== "app.nase.companion") fail(`This is ${packageName}. Updates 
 try {
   execFileSync(join(buildTools, "apksigner"), ["verify", apk], { stdio: "pipe" });
 } catch {
-  fail("The APK isn't signed. Sign it with the Pony release key first.");
+  fail("The APK isn't signed. Sign it with the Nase release key first.");
 }
 
 const bytes = readFileSync(apk);
@@ -41,7 +41,7 @@ const notesFile = option("notes", new URL("../../CHANGELOG.md", import.meta.url)
 const manifest = {
   versionCode: Number(versionCode),
   versionName,
-  apk: option("name", `pony-${versionName}.apk`),
+  apk: option("name", `nase-${versionName}.apk`),
   sha256: createHash("sha256").update(bytes).digest("hex"),
   size: statSync(apk).size,
   publishedAt: new Date().toISOString().slice(0, 10),

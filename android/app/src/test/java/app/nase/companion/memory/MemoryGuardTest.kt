@@ -25,7 +25,7 @@ class MemoryGuardTest {
 
     @Test
     fun refusesThingsThatLookLikeApiKeysOrTokens() {
-        assertFalse(MemoryGuard.check("note", "sk-pony-abc123def456").allowed)
+        assertFalse(MemoryGuard.check("note", "sk-nase-abc123def456").allowed)
         assertFalse(MemoryGuard.check("note", "AIzaSyA12345678901234567890").allowed)
         assertFalse(MemoryGuard.check("thing", "a1b2c3d4e5f6g7h8i9j0k1l2").allowed)
     }

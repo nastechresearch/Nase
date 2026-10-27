@@ -7,7 +7,7 @@ import { createRelay, type StartedRelay } from "../../relay/src/server.ts";
 
 import { MockPhone } from "./mock-phone.ts";
 import {
-  PonySession,
+  NaseSession,
   backoffDelay,
   type AppMessage,
   type LinkState,
@@ -16,7 +16,7 @@ import {
 } from "./session.ts";
 
 let relay: StartedRelay | undefined;
-const sessions: PonySession[] = [];
+const sessions: NaseSession[] = [];
 
 afterEach(async () => {
   for (const s of sessions) s.close();
@@ -31,19 +31,19 @@ const FAST: ReconnectOptions = { initialMs: 40, maxMs: 200 };
 
 async function paired(
   opts: { bot?: ReconnectOptions; phone?: ReconnectOptions } = {},
-): Promise<{ bot: PonySession; phone: MockPhone; phoneSession: PonySession }> {
+): Promise<{ bot: NaseSession; phone: MockPhone; phoneSession: NaseSession }> {
   relay = await createRelay({ host: "127.0.0.1", port: 0 });
-  const bot = await PonySession.createBot({ relayHttp: relay.url, reconnect: opts.bot });
+  const bot = await NaseSession.createBot({ relayHttp: relay.url, reconnect: opts.bot });
   sessions.push(bot);
   const phone = new MockPhone();
-  const phoneSession = await PonySession.createPhone(bot.qrJson(), undefined, { reconnect: opts.phone });
+  const phoneSession = await NaseSession.createPhone(bot.qrJson(), undefined, { reconnect: opts.phone });
   sessions.push(phoneSession);
   phoneSession.onRequest = (msg) => phone.handle(msg);
   await Promise.all([bot.waitUntilReady(), phoneSession.waitUntilReady()]);
   return { bot, phone, phoneSession };
 }
 
-function reached(session: PonySession, state: LinkState, timeoutMs = 5_000): Promise<void> {
+function reached(session: NaseSession, state: LinkState, timeoutMs = 5_000): Promise<void> {
   if (session.state === state) return Promise.resolve();
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
@@ -60,7 +60,7 @@ function reached(session: PonySession, state: LinkState, timeoutMs = 5_000): Pro
 }
 
 /** Pulls the network out from under a session without a close handshake. */
-function cutCable(session: PonySession): void {
+function cutCable(session: NaseSession): void {
   (session as unknown as { ws?: WebSocket }).ws?.terminate();
 }
 
@@ -121,11 +121,11 @@ describe("bot client ↔ mock phone through the relay", () => {
   it("leaves ciphertext opaque to a relay sniffer", async () => {
     relay = await createRelay({ host: "127.0.0.1", port: 0 });
     const seen: string[] = [];
-    const bot = await PonySession.createBot({ relayHttp: relay.url });
+    const bot = await NaseSession.createBot({ relayHttp: relay.url });
     sessions.push(bot);
 
     const phone = new MockPhone();
-    const phoneSession = await PonySession.createPhone(bot.qrJson());
+    const phoneSession = await NaseSession.createPhone(bot.qrJson());
     sessions.push(phoneSession);
     phoneSession.onRequest = (msg) => {
       seen.push(JSON.stringify(msg));
@@ -263,7 +263,7 @@ describe("sessions that survive dropped connections", () => {
     bot.close();
     await away;
 
-    const again = PonySession.resumeBot(saved, { reconnect: FAST });
+    const again = NaseSession.resumeBot(saved, { reconnect: FAST });
     sessions.push(again);
     await again.waitUntilReady(5_000);
     expect(again.link().resumed).toBe(true);
@@ -275,7 +275,7 @@ describe("sessions that survive dropped connections", () => {
     const { bot } = await paired();
     const saved = bot.save();
     await bot.end();
-    const again = PonySession.resumeBot(saved, { reconnect: FAST });
+    const again = NaseSession.resumeBot(saved, { reconnect: FAST });
     sessions.push(again);
     await expect(again.waitUntilReady(3_000)).rejects.toThrow("unknown_token");
     expect(again.state).toBe("ended");
@@ -288,7 +288,7 @@ describe("sessions that survive dropped connections", () => {
     cutCable(phoneSession);
     await away;
 
-    const stranger = await PonySession.createPhone(bot.qrJson(), generateKeyPair(), { reconnect: FAST });
+    const stranger = await NaseSession.createPhone(bot.qrJson(), generateKeyPair(), { reconnect: FAST });
     sessions.push(stranger);
     let reached_ = false;
     stranger.onRequest = () => {

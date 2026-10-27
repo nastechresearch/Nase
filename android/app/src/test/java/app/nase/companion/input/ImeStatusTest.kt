@@ -16,11 +16,11 @@ class ImeStatusTest {
     }
 
     @Test
-    fun ponyUsableRequiresEnabledAndSelectedOrActive() {
-        assertTrue(ImeSnapshot("gboard", ponyEnabled = true, ponySelected = true, ponyActive = false).ponyUsable)
-        assertTrue(ImeSnapshot("gboard", ponyEnabled = true, ponySelected = false, ponyActive = true).ponyUsable)
-        assertFalse(ImeSnapshot("gboard", ponyEnabled = false, ponySelected = false, ponyActive = false).ponyUsable)
-        assertFalse(ImeSnapshot("gboard", ponyEnabled = true, ponySelected = false, ponyActive = false).ponyUsable)
+    fun naseUsableRequiresEnabledAndSelectedOrActive() {
+        assertTrue(ImeSnapshot("gboard", naseEnabled = true, naseSelected = true, naseActive = false).naseUsable)
+        assertTrue(ImeSnapshot("gboard", naseEnabled = true, naseSelected = false, naseActive = true).naseUsable)
+        assertFalse(ImeSnapshot("gboard", naseEnabled = false, naseSelected = false, naseActive = false).naseUsable)
+        assertFalse(ImeSnapshot("gboard", naseEnabled = true, naseSelected = false, naseActive = false).naseUsable)
     }
 
     @Test

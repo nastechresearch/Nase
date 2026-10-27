@@ -7,7 +7,7 @@ import org.junit.Test
 class RecapShotPolicyTest {
     @Test
     fun keepsAWorkScreenButNeverNasesOwn() {
-        assertTrue(RecapShotPolicy.keep(ponyForeground = false))
-        assertFalse(RecapShotPolicy.keep(ponyForeground = true))
+        assertTrue(RecapShotPolicy.keep(naseForeground = false))
+        assertFalse(RecapShotPolicy.keep(naseForeground = true))
     }
 }

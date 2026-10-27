@@ -144,7 +144,7 @@ export function backoffDelay(attempt: number, initialMs = 1_000, maxMs = 30_000,
   return Math.max(initialMs / 2, Math.round(base + jitter));
 }
 
-export class PonySession {
+export class NaseSession {
   readonly payload: PairingPayload;
   readonly role: "bot" | "phone";
   readonly privateKey: Uint8Array;
@@ -189,7 +189,7 @@ export class PonySession {
     this.reconnect = reconnect === false ? null : { ...DEFAULT_RECONNECT, ...reconnect };
   }
 
-  static async createBot(opts: PairOptions): Promise<PonySession> {
+  static async createBot(opts: PairOptions): Promise<NaseSession> {
     const httpUrl = opts.relayHttp.replace(/\/$/, "");
     const res = await fetch(`${httpUrl}/pair`, { method: "POST" });
     if (!res.ok) {
@@ -205,7 +205,7 @@ export class PonySession {
       token: body.token,
       pk: b64urlEncode(keys.publicKey),
     };
-    const session = new PonySession("bot", payload, keys.privateKey, keys.publicKey, opts.clientName, opts.reconnect);
+    const session = new NaseSession("bot", payload, keys.privateKey, keys.publicKey, opts.clientName, opts.reconnect);
     session.wsUrl = socketPath(socket);
     await session.dial();
     return session;
@@ -215,9 +215,9 @@ export class PonySession {
     rawPayload: string,
     keyPair = generateKeyPair(),
     opts: { socketUrl?: string; reconnect?: ReconnectOptions | false } = {},
-  ): Promise<PonySession> {
+  ): Promise<NaseSession> {
     const payload = parsePairing(rawPayload);
-    const session = new PonySession("phone", payload, keyPair.privateKey, keyPair.publicKey, undefined, opts.reconnect);
+    const session = new NaseSession("phone", payload, keyPair.privateKey, keyPair.publicKey, undefined, opts.reconnect);
     session.keys = deriveSessionKeys(
       keyPair.privateKey,
       b64urlDecode(payload.pk),
@@ -238,10 +238,10 @@ export class PonySession {
   static resumeBot(
     saved: SavedSession,
     opts: { socketUrl?: string; reconnect?: ReconnectOptions | false } = {},
-  ): PonySession {
+  ): NaseSession {
     const checked = checkSaved(saved);
     const privateKey = b64urlDecode(checked.privateKey);
-    const session = new PonySession(
+    const session = new NaseSession(
       "bot",
       checked.payload,
       privateKey,
@@ -740,7 +740,7 @@ function socketPath(url: string): string {
 }
 
 function checkSaved(saved: SavedSession): SavedSession {
-  if (!saved || saved.v !== 1 || saved.role !== "bot") throw new Error("not a saved Pony session");
+  if (!saved || saved.v !== 1 || saved.role !== "bot") throw new Error("not a saved Nase session");
   const payload = parsePairing(JSON.stringify(saved.payload));
   for (const field of ["socketUrl", "privateKey", "publicKey", "peerKey"] as const) {
     if (typeof saved[field] !== "string" || !saved[field]) throw new Error(`saved session is missing ${field}`);

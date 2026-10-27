@@ -127,8 +127,8 @@ class RelayClient(
 
     companion object {
         /** Hostnames in the network security config. Raw IP ranges are not domain suffixes. */
-        const val TAILSCALE_DIAL_HOST = "pony-tailscale.invalid"
-        const val LAN_DIAL_HOST = "pony-lan.invalid"
+        const val TAILSCALE_DIAL_HOST = "nase-tailscale.invalid"
+        const val LAN_DIAL_HOST = "nase-lan.invalid"
         const val CLOSE_PEER_LEFT = 4001
         const val CLOSE_ROOM_GONE = 4000
 

@@ -13,4 +13,4 @@ ENV HOST=0.0.0.0
 ENV PORT=8787
 EXPOSE 8787
 
-CMD ["npm", "run", "start", "-w", "@pony/relay"]
+CMD ["npm", "run", "start", "-w", "@nase/relay"]

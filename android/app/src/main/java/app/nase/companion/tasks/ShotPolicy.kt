@@ -13,6 +13,6 @@ object ShotPolicy {
      * Only Nase's own screens, captured while Nase is in the background, may be
      * kept — and then only when the owner left that setting on.
      */
-    fun keepThumbnail(keepSetting: Boolean, ponyForeground: Boolean, ofOtherApp: Boolean): Boolean =
-        keepSetting && !ponyForeground && !ofOtherApp
+    fun keepThumbnail(keepSetting: Boolean, naseForeground: Boolean, ofOtherApp: Boolean): Boolean =
+        keepSetting && !naseForeground && !ofOtherApp
 }

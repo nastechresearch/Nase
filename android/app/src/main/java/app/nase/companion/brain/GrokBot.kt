@@ -3,9 +3,9 @@ package app.nase.companion.brain
 /**
  * Grok Bot is SpaceXAI's agent app (@bot). It has no API key.
  * It drives the phone through Nase's connector, which is Connected mode.
- * Replace [PONY_GROK_BOT_TEMPLATE_URL] with the published template link.
+ * Replace [NASE_GROK_BOT_TEMPLATE_URL] with the published template link.
  */
-const val PONY_GROK_BOT_TEMPLATE_URL = "https://example.com/pony-grok-bot-template"
+const val NASE_GROK_BOT_TEMPLATE_URL = "https://example.com/nase-grok-bot-template"
 
 object GrokBot {
     const val NAME = "Grok Bot"

@@ -163,7 +163,7 @@ class NaseViewModel(app: Application) : AndroidViewModel(app) {
         loadMemories()
         loadSchedules()
         loadRoutines()
-        thread(name = "pony-history") {
+        thread(name = "nase-history") {
             TaskRuntime.tracker
             main.post { historyLoaded = true }
         }
@@ -172,7 +172,7 @@ class NaseViewModel(app: Application) : AndroidViewModel(app) {
     /** Reads the remembered facts off disk on a background thread; Keystore work shouldn't block the UI. */
     fun loadMemories() {
         val app = getApplication<Application>()
-        thread(name = "pony-memory") {
+        thread(name = "nase-memory") {
             val entries = runCatching { Memory.store(app).all() }.getOrDefault(emptyList())
             main.post {
                 memories = entries
@@ -196,7 +196,7 @@ class NaseViewModel(app: Application) : AndroidViewModel(app) {
     /** Reads scheduled tasks off disk on a background thread, like memory. */
     fun loadSchedules() {
         val app = getApplication<Application>()
-        thread(name = "pony-schedules") {
+        thread(name = "nase-schedules") {
             val tasks = runCatching { ScheduleAlarms.store(app).all() }.getOrDefault(emptyList())
             main.post {
                 schedules = tasks
@@ -226,7 +226,7 @@ class NaseViewModel(app: Application) : AndroidViewModel(app) {
     /** Reads saved routines off disk on a background thread, like memory and schedules. */
     fun loadRoutines() {
         val app = getApplication<Application>()
-        thread(name = "pony-routines") {
+        thread(name = "nase-routines") {
             val saved = runCatching { RoutineBook.store(app).all() }.getOrDefault(emptyList())
             main.post {
                 routines = saved
@@ -500,7 +500,7 @@ class NaseViewModel(app: Application) : AndroidViewModel(app) {
             done(false, "Paste an API key of at least 8 characters.")
             return
         }
-        thread(name = "pony-connect-brain") {
+        thread(name = "nase-connect-brain") {
             val probe = ProviderRecord(
                 id = "probe",
                 name = preset.title,
@@ -548,7 +548,7 @@ class NaseViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun testBrain(draft: ProviderDraft, pasted: String, done: (Boolean, String) -> Unit) {
-        thread(name = "pony-test-brain") {
+        thread(name = "nase-test-brain") {
             val key = pasted.trim().ifEmpty { draft.id?.let { brains?.secret(it) }.orEmpty() }
             val result = if (key.isEmpty()) {
                 false to "Paste a key, or save one first."

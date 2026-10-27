@@ -52,11 +52,11 @@ class CoverCheckTest {
     }
 
     @Test
-    fun ponysOwnOverlayIsIgnoredButItsAppWindowIsNotTapped() {
+    fun nasesOwnOverlayIsIgnoredButItsAppWindowIsNotTapped() {
         val overlay = WindowShot(WinType.ACCESSIBILITY_OVERLAY, 20, 300, 120, 1140, 260, "app.nase.companion")
         assertEquals(Cover.Clear, CoverCheck.at(700, 200, listOf(calculator, statusBar, overlay), ctx))
-        val ponyApp = WindowShot(WinType.APPLICATION, 4, 0, 0, 1440, 3120, "app.nase.companion")
-        assertEquals(Cover.Popup("app.nase.companion", "nase"), CoverCheck.at(700, 2000, listOf(calculator, ponyApp), ctx))
+        val naseApp = WindowShot(WinType.APPLICATION, 4, 0, 0, 1440, 3120, "app.nase.companion")
+        assertEquals(Cover.Popup("app.nase.companion", "nase"), CoverCheck.at(700, 2000, listOf(calculator, naseApp), ctx))
     }
 
     @Test

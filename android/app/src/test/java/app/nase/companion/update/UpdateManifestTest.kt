@@ -13,12 +13,12 @@ class UpdateManifestTest {
     @Test
     fun parsesTheLatestManifest() {
         val manifest = UpdateManifests.parse(
-            """{"versionCode":6,"versionName":"0.5.1","apk":"pony-0.5.1.apk","sha256":"$sha","size":1234,
+            """{"versionCode":6,"versionName":"0.5.1","apk":"nase-0.5.1.apk","sha256":"$sha","size":1234,
                "publishedAt":"2026-10-02","minSdk":29,"changelog":["Faster reconnects","Calmer bubble"]}""",
         )
         assertEquals(6, manifest.versionCode)
         assertEquals("0.5.1", manifest.versionName)
-        assertEquals("https://download.nase.karlmagendavid.com/pony-0.5.1.apk", manifest.apkUrl)
+        assertEquals("https://download.nase.karlmagendavid.com/nase-0.5.1.apk", manifest.apkUrl)
         assertEquals(listOf("Faster reconnects", "Calmer bubble"), manifest.changelog)
         assertTrue(UpdateManifests.isNewer(manifest, 5))
         assertFalse(UpdateManifests.isNewer(manifest, 6))

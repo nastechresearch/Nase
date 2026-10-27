@@ -5,7 +5,7 @@ plugins {
     id("io.github.takahirom.roborazzi")
 }
 
-val screenshotDir: String = providers.environmentVariable("PONY_SCREENSHOTS").orNull
+val screenshotDir: String = providers.environmentVariable("NASE_SCREENSHOTS").orNull
     ?: layout.buildDirectory.dir("outputs/roborazzi").get().asFile.absolutePath
 
 android {

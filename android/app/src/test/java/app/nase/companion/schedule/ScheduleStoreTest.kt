@@ -83,5 +83,5 @@ class ScheduleStoreTest {
         return ScheduleStore(tempFile(), newId = { "id_${counter++}" })
     }
 
-    private fun tempFile(): File = File.createTempFile("pony-schedule", ".json").apply { delete() }
+    private fun tempFile(): File = File.createTempFile("nase-schedule", ".json").apply { delete() }
 }

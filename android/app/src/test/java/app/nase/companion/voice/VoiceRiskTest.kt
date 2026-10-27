@@ -29,7 +29,7 @@ class VoiceRiskTest {
     @Test
     fun stopAndYesAreExplicit() {
         assertTrue(VoiceWords.isStop("Stop"))
-        assertTrue(VoiceWords.isStop("stop pony"))
+        assertTrue(VoiceWords.isStop("stop nase"))
         assertTrue(VoiceWords.isYes("Yes"))
         assertTrue(VoiceWords.isYes("do it"))
         assertTrue(VoiceWords.isNo("nope"))

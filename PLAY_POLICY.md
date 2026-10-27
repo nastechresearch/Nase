@@ -1,6 +1,6 @@
 # Google Play and the Accessibility API
 
-Pony Companion is meant to ship as a direct APK and on F-Droid. A Play listing is a separate track, and the likely outcome of a listing framed as "an assistant drives your phone" is rejection.
+Nase Companion is meant to ship as a direct APK and on F-Droid. A Play listing is a separate track, and the likely outcome of a listing framed as "an assistant drives your phone" is rejection.
 
 This is not legal advice. It is the checklist a Play submission would have to meet, based on Play's Accessibility, User Data, and Malware policies as described in the product scope.
 

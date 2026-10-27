@@ -121,7 +121,7 @@ export function createRelay(options: RelayOptions = {}): Promise<StartedRelay> {
     resumeGraceMs: options.resumeGraceMs,
     maxRoomMs: options.maxRoomMs,
   });
-  const publicUrl = options.publicUrl ?? process.env.PONY_RELAY_URL;
+  const publicUrl = options.publicUrl ?? process.env.NASE_RELAY_URL;
   const pairLimiter = new WindowCounter(now);
   const connectLimiter = new WindowCounter(now);
   const socketsByIp = new Gauge();
@@ -453,7 +453,7 @@ function landingPage(rooms: number): string {
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pony relay</title>
+  <title>Nase relay</title>
   <style>
     :root { color-scheme: dark; }
     body { font-family: ui-sans-serif, system-ui, sans-serif; margin: 0; background: #0b0a13; color: #f4f2fb; }
@@ -466,7 +466,7 @@ function landingPage(rooms: number): string {
 </head>
 <body>
   <main>
-    <p class="ok">Pony relay is up</p>
+    <p class="ok">Nase relay is up</p>
     <h1>Untrusted WebSocket pairing room</h1>
     <p>This process only matches a phone and a bot by a one-time token. Frames are opaque. It cannot decrypt screenshots or commands.</p>
     <p>Established sessions survive a dropped connection: either side can rejoin with the same token for a while.</p>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.Nase.Base" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:windowBackground">@color/pony_canvas</item>
+        <item name="android:windowBackground">@color/nase_canvas</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>
@@ -13,7 +13,7 @@
     <style name="Theme.Nase" parent="Theme.Nase.Base" />
 
     <style name="Theme.Nase.Night" parent="android:Theme.Material.NoActionBar">
-        <item name="android:windowBackground">@color/pony_night</item>
+        <item name="android:windowBackground">@color/nase_night</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">false</item>

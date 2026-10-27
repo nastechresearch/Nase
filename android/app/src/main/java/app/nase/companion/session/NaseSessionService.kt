@@ -67,9 +67,9 @@ import java.util.concurrent.atomic.AtomicInteger
  * with the Keystore, and reconnects back off from 1 s to 30 s.
  */
 class NaseSessionService : Service(), RelayClient.Listener {
-    private val worker = Executors.newSingleThreadScheduledExecutor { Thread(it, "pony-session") }
-    private val commands = Executors.newSingleThreadExecutor { Thread(it, "pony-commands") }
-    private val waits = Executors.newSingleThreadExecutor { Thread(it, "pony-wait") }
+    private val worker = Executors.newSingleThreadScheduledExecutor { Thread(it, "nase-session") }
+    private val commands = Executors.newSingleThreadExecutor { Thread(it, "nase-commands") }
+    private val waits = Executors.newSingleThreadExecutor { Thread(it, "nase-wait") }
     private lateinit var audit: AuditLog
     private lateinit var vault: SessionVault
     @Volatile private var relay: RelayClient? = null
@@ -808,10 +808,10 @@ class NaseSessionService : Service(), RelayClient.Listener {
                 "ime",
                 JSONObject()
                     .put("current", ime.currentId ?: JSONObject.NULL)
-                    .put("ponyEnabled", ime.ponyEnabled)
-                    .put("ponySelected", ime.ponySelected)
-                    .put("ponyActive", ime.ponyActive)
-                    .put("ponyUsable", ime.ponyUsable),
+                    .put("naseEnabled", ime.naseEnabled)
+                    .put("naseSelected", ime.naseSelected)
+                    .put("naseActive", ime.naseActive)
+                    .put("naseUsable", ime.naseUsable),
             )
     }
 
@@ -965,7 +965,7 @@ class NaseSessionService : Service(), RelayClient.Listener {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_stat_pony)
+            .setSmallIcon(R.drawable.ic_stat_nase)
             .setContentTitle(text)
             .setContentText(getString(R.string.notif_text))
             .setContentIntent(open)
@@ -1007,7 +1007,7 @@ class NaseSessionService : Service(), RelayClient.Listener {
         const val EXTRA_PAIRING = "pairing"
         const val EXTRA_PROJECTION_CODE = "projection_code"
         const val EXTRA_PROJECTION_DATA = "projection_data"
-        private const val CHANNEL_ID = "pony_session"
+        private const val CHANNEL_ID = "nase_session"
         private const val NOTIF_ID = 17
         private val SCREEN_OPS = setOf("tap", "swipe", "long_press", "drag", "pinch", "type", "press", "open_app", "open_settings", "screenshot", "ui_tree", "wait_idle")
         private val ACTING_OPS = setOf("tap", "swipe", "long_press", "drag", "pinch", "type", "press", "open_app", "open_settings")

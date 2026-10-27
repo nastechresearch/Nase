@@ -1,6 +1,6 @@
 import { actionExpired, actionTtlMs, displayChoice, effectiveIssuedAt, screenChanged, type CommandParams } from "@nase/shared";
 
-import type { AppMessage, CommandResult, PonySession } from "./session.ts";
+import type { AppMessage, CommandResult, NaseSession } from "./session.ts";
 
 export interface MockRequest {
   id: string;
@@ -42,7 +42,7 @@ export class MockPhone {
    * down when the assistant drops off, so they can't claim a request nobody
    * will receive.
    */
-  attach(session: PonySession): void {
+  attach(session: NaseSession): void {
     session.onRequest = (msg) => this.handle(msg);
     session.onStatus((status) => {
       if (status.state !== "ready") this.cancelWaits();
@@ -84,17 +84,17 @@ export class MockPhone {
         return {
           ok: true,
           result: {
-            app: "Pony Companion (mock)",
+            app: "Nase Companion (mock)",
             version: "0.6.4",
             features: ["resume", "tasks", "done", "deferral", "cover_check", "listen", "action_ttl"],
             sessionEndsAt: this.sessionEndsAt,
             now: Date.now(),
             ime: {
-              current: "app.nase.companion/.input.PonyInputMethodService",
-              ponyEnabled: true,
-              ponySelected: true,
-              ponyActive: false,
-              ponyUsable: true,
+              current: "app.nase.companion/.input.NaseInputMethodService",
+              naseEnabled: true,
+              naseSelected: true,
+              naseActive: false,
+              naseUsable: true,
             },
           },
         };

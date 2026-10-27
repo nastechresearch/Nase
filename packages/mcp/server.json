@@ -24,7 +24,7 @@
           "format": "string"
         },
         {
-          "name": "PONY_LISTEN",
+          "name": "NASE_LISTEN",
           "description": "Backward compat: Set to 1 to keep the phone pairing and accept asks typed or spoken on the phone",
           "isRequired": false,
           "format": "string"
@@ -36,7 +36,7 @@
           "format": "string"
         },
         {
-          "name": "PONY_RELAY",
+          "name": "NASE_RELAY",
           "description": "Backward compat: Relay URL",
           "isRequired": false,
           "format": "string"
@@ -48,7 +48,7 @@
           "format": "string"
         },
         {
-          "name": "PONY_CLIENT_NAME",
+          "name": "NASE_CLIENT_NAME",
           "description": "Backward compat: Assistant name shown on the phone",
           "isRequired": false,
           "format": "string"
@@ -60,7 +60,7 @@
           "format": "string"
         },
         {
-          "name": "PONY_STATE",
+          "name": "NASE_STATE",
           "description": "Backward compat: Path of the pairing file used in listen mode",
           "isRequired": false,
           "format": "string"

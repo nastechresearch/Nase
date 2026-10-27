@@ -230,7 +230,7 @@ fun askStatus(phoneMode: Boolean, session: SessionUi, listening: Boolean, keyBra
         )
         connected -> AskStatus(
             "$grok isn't listening right now",
-            "Your ask waits until it checks in. Run pony-phone listen on your computer and it answers right away.",
+            "Your ask waits until it checks in. Run nase-phone listen on your computer and it answers right away.",
             Tone.Warning,
             listOf(AskFix.LISTEN_HELP, AskFix.ADD_KEY),
         )

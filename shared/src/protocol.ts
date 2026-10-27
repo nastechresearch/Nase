@@ -75,9 +75,9 @@ export type PressKey = "back" | "home" | "recents" | "enter" | "search" | "go" |
 /**
  * `type` inserts at the caret by default (it replaces only the current selection).
  * Pass `mode: "replace"` to overwrite the whole field, or `mode: "append"` to add at the end.
- * The phone replies with result.method: `ime` (Pony keyboard), `set_text`, `paste`, or `key_events`.
+ * The phone replies with result.method: `ime` (Nase keyboard), `set_text`, `paste`, or `key_events`.
  * `paste` happens only when the owner opted in. `key_events` is a last resort and includes result.warn.
- * Password fields return error `password_field`. `ime_disabled` and `ime_required` mean the Pony keyboard is not ready.
+ * Password fields return error `password_field`. `ime_disabled` and `ime_required` mean the Nase keyboard is not ready.
  * `press` with an IME-action key (`enter`, `search`, `go`, `send`, `next`, `done`) submits the focused field
  * through its editor action (search/go/send/…), falling back to the Enter or Search key.
  * `long_press` holds at `(x, y)`; `drag` presses at `(x1, y1)`, moves to `(x2, y2)`, and releases as one slow stroke;
@@ -215,7 +215,7 @@ export function relayWsOrigin(relay: string): string {
 
 export function parsePairingInput(raw: string): PairingPayload {
   const trimmed = raw.trim();
-  if (trimmed.startsWith("pony:")) return parsePairingLink(trimmed);
+  if (trimmed.startsWith("nase:")) return parsePairingLink(trimmed);
   if (/^https?:\/\//i.test(trimmed)) return parseHttpPairLink(trimmed);
   return parsePairing(trimmed);
 }
@@ -225,10 +225,10 @@ export function parsePairingLink(raw: string): PairingPayload {
   try {
     url = new URL(raw.trim());
   } catch {
-    throw new Error("not a pony pairing link");
+    throw new Error("not a nase pairing link");
   }
-  if (url.protocol !== "pony:" || url.hostname !== "pair") {
-    throw new Error("not a pony pairing link");
+  if (url.protocol !== "nase:" || url.hostname !== "pair") {
+    throw new Error("not a nase pairing link");
   }
   return parsePairing(
     JSON.stringify({
@@ -242,7 +242,7 @@ export function parsePairingLink(raw: string): PairingPayload {
 
 /**
  * Parses the https hand-off link, e.g.
- * `https://download.pony…/pair#v=1&relay=…&token=…&pk=…&exp=…`.
+ * `https://download.nase…/pair#v=1&relay=…&token=…&pk=…&exp=…`.
  * The tap link carries its fields in the fragment; a `?query` form works too.
  * An extra `exp` is ignored here — callers that care about expiry read it
  * separately — so a link with a future or no expiry parses the same.
@@ -252,15 +252,15 @@ export function parseHttpPairLink(raw: string): PairingPayload {
   try {
     url = new URL(raw.trim());
   } catch {
-    throw new Error("not a pony pairing link");
+    throw new Error("not a nase pairing link");
   }
   if (url.protocol !== "http:" && url.protocol !== "https:") {
-    throw new Error("not a pony pairing link");
+    throw new Error("not a nase pairing link");
   }
   // The tap link is `/pair`; the hand-off page is served as `/pair.html`. Treat
   // both (with any trailing slash) as the pairing route.
   if (url.pathname.replace(/\/+$/, "").replace(/\.html?$/i, "") !== "/pair") {
-    throw new Error("not a pony pairing link");
+    throw new Error("not a nase pairing link");
   }
   const fields = new URLSearchParams(url.search);
   if (url.hash) {

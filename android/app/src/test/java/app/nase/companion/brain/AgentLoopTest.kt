@@ -196,7 +196,7 @@ class AgentLoopTest {
     fun theSystemPromptCarriesTheOwnerTestedGuidance() {
         val prompt = AgentLoop.SYSTEM.lowercase()
         // Nase's own UI is never the task (self-screenshot bug).
-        assertTrue(prompt.contains("pony's own app is never the task"))
+        assertTrue(prompt.contains("nase's own app is never the task"))
         assertTrue(prompt.contains("press home and look again"))
         // It acts on reachable settings instead of refusing.
         assertTrue(prompt.contains("change any system setting"))

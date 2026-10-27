@@ -8,7 +8,7 @@ class OwnUiTest {
     private val own = "app.nase.companion"
 
     @Test
-    fun ponyInFrontOnTheMainScreenMeansLeaveFirst() {
+    fun naseInFrontOnTheMainScreenMeansLeaveFirst() {
         assertTrue(OwnUi.inFront(onMainScreen = true, foreground = own, ownPackage = own))
     }
 

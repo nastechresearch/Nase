@@ -9,7 +9,7 @@ import java.security.MessageDigest
 /**
  * `latest.json` on the Nase download server:
  * ```
- * { "versionCode": 6, "versionName": "0.5.1", "apk": "pony-0.5.1.apk",
+ * { "versionCode": 6, "versionName": "0.5.1", "apk": "nase-0.5.1.apk",
  *   "sha256": "<64 hex>", "size": 12345678, "publishedAt": "2026-10-02",
  *   "minSdk": 29, "changelog": ["Line one", "Line two"] }
  * ```

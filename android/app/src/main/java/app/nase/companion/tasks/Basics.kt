@@ -259,7 +259,7 @@ object Basics {
         var s = text.lowercase()
             .replace('’', '\'')
             .replace(Regex("^\\s*(try|example)\\s*:\\s*"), "")
-            .replace(Regex("\\b(hey|ok|okay)\\s+pony\\b[,!]?"), " ")
+            .replace(Regex("\\b(hey|ok|okay)\\s+nase\\b[,!]?"), " ")
             .replace(Regex("\\bplease\\b|\\bcan you\\b|\\bcould you\\b|\\bfor me\\b"), " ")
             .replace(Regex("[!.]+$"), "")
             .replace(Regex("(?<=\\d),(?=\\d{3}\\b)"), "")

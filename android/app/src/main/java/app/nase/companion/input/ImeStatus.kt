@@ -7,11 +7,11 @@ import android.view.inputmethod.InputMethodManager
 
 data class ImeSnapshot(
     val currentId: String?,
-    val ponyEnabled: Boolean,
-    val ponySelected: Boolean,
-    val ponyActive: Boolean,
+    val naseEnabled: Boolean,
+    val naseSelected: Boolean,
+    val naseActive: Boolean,
 ) {
-    val ponyUsable: Boolean get() = ponyEnabled && (ponySelected || ponyActive)
+    val naseUsable: Boolean get() = naseEnabled && (naseSelected || naseActive)
 }
 
 object ImeStatus {
@@ -24,14 +24,14 @@ object ImeStatus {
         null
     }
 
-    fun snapshot(context: Context, ponyActive: Boolean = ImeBridge.active): ImeSnapshot {
+    fun snapshot(context: Context, naseActive: Boolean = ImeBridge.active): ImeSnapshot {
         val current = currentId(context)
         val name = component(context)
         return ImeSnapshot(
             currentId = current,
-            ponyEnabled = enabled(context),
-            ponySelected = listed(current, name.flattenToString(), name.flattenToShortString()),
-            ponyActive = ponyActive,
+            naseEnabled = enabled(context),
+            naseSelected = listed(current, name.flattenToString(), name.flattenToShortString()),
+            naseActive = naseActive,
         )
     }
 

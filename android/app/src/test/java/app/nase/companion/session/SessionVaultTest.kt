@@ -23,7 +23,7 @@ class SessionVaultTest {
 
     @Test
     fun theSessionIsSealedOnDiskAndRoundTrips() {
-        val file = File.createTempFile("pony-session", ".json")
+        val file = File.createTempFile("nase-session", ".json")
         val box = JceSecretBox.random()
         val vault = SessionVault(file, box)
         vault.save(snapshot)
@@ -36,7 +36,7 @@ class SessionVaultTest {
 
     @Test
     fun aDifferentKeyCannotOpenIt() {
-        val file = File.createTempFile("pony-session", ".json")
+        val file = File.createTempFile("nase-session", ".json")
         SessionVault(file, JceSecretBox.random()).save(snapshot)
         assertNull(SessionVault(file, JceSecretBox.random()).load())
     }

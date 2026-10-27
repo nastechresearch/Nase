@@ -8,7 +8,7 @@ import org.junit.Test
 import java.io.File
 
 class BrainLibraryTest {
-    private val key = "sk-pony-PLAINTEXT-secret-9999"
+    private val key = "sk-nase-PLAINTEXT-secret-9999"
 
     @Test
     fun keyIsNotPlaintextOnDiskAndOnlyLast4IsVisible() {
@@ -20,7 +20,7 @@ class BrainLibraryTest {
         val disk = library.providerText() + library.secretText()
         assertFalse(disk.contains(key))
         assertFalse(disk.contains("PLAINTEXT"))
-        assertFalse(disk.contains("sk-pony"))
+        assertFalse(disk.contains("sk-nase"))
         assertTrue(disk.contains("9999"))
         assertFalse(saved.toString().contains(key))
     }
@@ -177,7 +177,7 @@ class BrainLibraryTest {
         newKey = newKey,
     )
 
-    private fun tempRoot(): File = File.createTempFile("pony-brains", "").apply {
+    private fun tempRoot(): File = File.createTempFile("nase-brains", "").apply {
         delete()
         mkdirs()
     }

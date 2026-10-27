@@ -232,7 +232,7 @@ fun ListenHelpScreen(relay: String, onCopy: (String) -> Unit, onBack: () -> Unit
     val commands = listOf(
         ListenCommand(
             "Keep Grok Bot listening",
-            "From the Nase folder on your computer. It pairs once, stays connected, reconnects after drops, and prints every ask from this phone. Add --exec to hand each ask to your agent; the words are in \$PONY_REQUEST_TEXT.",
+            "From the Nase folder on your computer. It pairs once, stays connected, reconnects after drops, and prints every ask from this phone. Add --exec to hand each ask to your agent; the words are in \$NASE_REQUEST_TEXT.",
             if (relayFlag.isEmpty()) "npm run listen" else "npm run listen --$relayFlag",
         ),
         ListenCommand(

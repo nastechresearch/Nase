@@ -7,7 +7,7 @@ import { PAIRING_TTL_MS, REQUEST_POLL_MS, pairPageLink, pairingLink } from "@nas
 
 import {
   ENDED_REASONS,
-  PonySession,
+  NaseSession,
   type CommandResult,
   type LinkState,
   type LinkStatus,
@@ -22,9 +22,9 @@ export interface OwnerRequest {
   receivedAt: number;
 }
 
-/** `~/.pony/<name>`, or under `PONY_HOME`. */
+/** `~/.nase/<name>`, or under `NASE_HOME`. */
 export function defaultStatePath(name: string): string {
-  const base = process.env.PONY_HOME?.trim() || join(homedir(), ".pony");
+  const base = process.env.NASE_HOME?.trim() || join(homedir(), ".nase");
   return join(base, name);
 }
 
@@ -86,7 +86,7 @@ export class RequestListener {
   private readonly seen: string[] = [];
 
   constructor(
-    private readonly session: PonySession,
+    private readonly session: NaseSession,
     private readonly options: ListenerOptions,
   ) {
     this.offLate = session.onLateReply((op, result) => {
@@ -220,7 +220,7 @@ export interface ListenOptions {
 }
 
 export interface ListenHandle {
-  readonly session: () => PonySession | undefined;
+  readonly session: () => NaseSession | undefined;
   /** Stops listening and leaves the pairing in place, so the next run picks it up. */
   stop(): Promise<void>;
   /** Ends the session on the phone and deletes the saved pairing. */
@@ -233,7 +233,7 @@ export interface ListenHandle {
 const GONE = new Set([...ENDED_REASONS, "ended"]);
 
 /**
- * `pony-phone listen`: pairs once (or rejoins the saved pairing), stays
+ * `nase-phone listen`: pairs once (or rejoins the saved pairing), stays
  * connected through network changes and restarts, and hands every request the
  * owner makes to [ListenOptions.exec] or to the event stream.
  */
@@ -242,13 +242,13 @@ export async function runListen(options: ListenOptions): Promise<ListenHandle> {
   const say = options.say ?? (() => undefined);
   const store = new SessionFile(options.statePath);
   let stopped = false;
-  let session: PonySession | undefined;
+  let session: NaseSession | undefined;
   let listener: RequestListener | undefined;
 
   if (options.fresh) {
     const old = store.load();
     if (old) {
-      const previous = PonySession.resumeBot(old, { reconnect: options.reconnect, socketUrl: options.socketUrl });
+      const previous = NaseSession.resumeBot(old, { reconnect: options.reconnect, socketUrl: options.socketUrl });
       await Promise.race([settle(previous), delay(4_000)]);
       await previous.end();
     }
@@ -263,7 +263,7 @@ export async function runListen(options: ListenOptions): Promise<ListenHandle> {
 
   const saved = store.load();
   if (saved) {
-    session = PonySession.resumeBot(saved, { reconnect: options.reconnect, socketUrl: options.socketUrl });
+    session = NaseSession.resumeBot(saved, { reconnect: options.reconnect, socketUrl: options.socketUrl });
     say("Rejoining your phone…");
     const early = session.onStatus((status) => {
       if (status.state === "reconnecting") report(status);
@@ -281,10 +281,10 @@ export async function runListen(options: ListenOptions): Promise<ListenHandle> {
     say(
       first === "ready"
         ? `Back with your phone. Safety code ${session.safetyCode()}.`
-        : `Rejoined the session (safety code ${session.safetyCode()}). The phone isn't online right now; Pony will pick up when it is.`,
+        : `Rejoined the session (safety code ${session.safetyCode()}). The phone isn't online right now; Nase will pick up when it is.`,
     );
   } else {
-    session = await PonySession.createBot({
+    session = await NaseSession.createBot({
       relayHttp: options.relayHttp,
       clientName: options.clientName,
       reconnect: options.reconnect,
@@ -327,7 +327,7 @@ export async function runListen(options: ListenOptions): Promise<ListenHandle> {
     },
   });
   listener.start();
-  say(options.exec ? "Listening. Ask Pony something on your phone." : "Listening. What the owner asks for shows up here.");
+  say(options.exec ? "Listening. Ask Nase something on your phone." : "Listening. What the owner asks for shows up here.");
 
   const finished = new Promise<string>((resolve) => {
     const check = (status: LinkStatus) => {
@@ -380,7 +380,7 @@ function delay(ms: number): Promise<void> {
 }
 
 /** First of ready, away, or ended. */
-function settle(session: PonySession): Promise<LinkState> {
+function settle(session: NaseSession): Promise<LinkState> {
   const now = session.state;
   if (now === "ready" || now === "away" || now === "ended") return Promise.resolve(now);
   return new Promise((resolve) => {
@@ -394,7 +394,7 @@ function settle(session: PonySession): Promise<LinkState> {
 }
 
 async function answer(
-  session: PonySession,
+  session: NaseSession,
   command: string,
   request: OwnerRequest,
   timeoutMs: number,
@@ -417,8 +417,8 @@ export interface ExecReply {
 }
 
 /**
- * Runs [command] through the shell with the request in `PONY_REQUEST_TEXT`,
- * `PONY_REQUEST_ID`, and `PONY_REQUEST_SOURCE`, and on stdin. The text is
+ * Runs [command] through the shell with the request in `NASE_REQUEST_TEXT`,
+ * `NASE_REQUEST_ID`, and `NASE_REQUEST_SOURCE`, and on stdin. The text is
  * never pasted into the command line. Exit 0 is success. The reply is stdout,
  * or stderr on failure, trimmed to one short paragraph.
  */
@@ -428,9 +428,9 @@ export function runExec(command: string, request: OwnerRequest, timeoutMs = 120_
       shell: true,
       env: {
         ...process.env,
-        PONY_REQUEST_ID: request.requestId,
-        PONY_REQUEST_TEXT: request.text,
-        PONY_REQUEST_SOURCE: request.source,
+        NASE_REQUEST_ID: request.requestId,
+        NASE_REQUEST_TEXT: request.text,
+        NASE_REQUEST_SOURCE: request.source,
       },
       stdio: ["pipe", "pipe", "pipe"],
     });
@@ -445,7 +445,7 @@ export function runExec(command: string, request: OwnerRequest, timeoutMs = 120_
     };
     const timer = setTimeout(() => {
       child.kill("SIGTERM");
-      finish({ ok: false, text: "That took too long, so Pony stopped waiting." });
+      finish({ ok: false, text: "That took too long, so Nase stopped waiting." });
     }, timeoutMs);
     child.stdout.on("data", (chunk: Buffer) => {
       if (out.length < 64_000) out += chunk.toString("utf8");
@@ -484,7 +484,7 @@ function statusLine(status: LinkStatus): string | undefined {
     case "ready":
       return status.resumed ? "Your phone is back." : undefined;
     case "away":
-      return "The phone dropped off. Pony is holding the session until it's back.";
+      return "The phone dropped off. Nase is holding the session until it's back.";
     case "reconnecting": {
       const secs = status.nextRetryAt ? Math.max(1, Math.round((status.nextRetryAt - Date.now()) / 1000)) : 1;
       return `Lost the relay. Trying again in ${secs} s (attempt ${status.attempt}).`;
@@ -498,13 +498,13 @@ function endedLine(reason: string, endedBy?: string): string {
   switch (reason) {
     case "peer_left":
       if (endedBy === "time_limit") {
-        return "The phone's session time ran out. Run pony-phone listen again to pair. To stay paired, set Stay connected for to Until I disconnect on the phone.";
+        return "The phone's session time ran out. Run nase-phone listen again to pair. To stay paired, set Stay connected for to Until I disconnect on the phone.";
       }
-      return "The phone ended the session. Run pony-phone listen again to pair.";
+      return "The phone ended the session. Run nase-phone listen again to pair.";
     case "unknown_token":
     case "expired_token":
     case "room_closed":
-      return "The relay no longer has this session. Run pony-phone listen again to pair.";
+      return "The relay no longer has this session. Run nase-phone listen again to pair.";
     case "replaced":
       return "Another copy of this listener took over the session.";
     case "ended":

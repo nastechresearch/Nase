@@ -61,8 +61,8 @@ class KeystoreSecretBox(private val alias: String = ALIAS) : SecretBox {
 
     companion object {
         private const val ANDROID_KEYSTORE = "AndroidKeyStore"
-        const val ALIAS = "pony_brain_keys"
-        const val SESSION_ALIAS = "pony_session_keys"
-        const val MEMORY_ALIAS = "pony_memory_keys"
+        const val ALIAS = "nase_brain_keys"
+        const val SESSION_ALIAS = "nase_session_keys"
+        const val MEMORY_ALIAS = "nase_memory_keys"
     }
 }

@@ -48,15 +48,15 @@ function envInt(name: string): number | undefined {
 /** Optional env overrides for a self-hosted relay. Unset keys keep the defaults. */
 export function limitsFromEnv(): Partial<RelayLimits> {
   return {
-    maxPayloadBytes: envInt("PONY_MAX_PAYLOAD_BYTES"),
-    maxHttpBodyBytes: envInt("PONY_MAX_HTTP_BODY_BYTES"),
-    maxRooms: envInt("PONY_MAX_ROOMS"),
-    maxRoomsPerIp: envInt("PONY_MAX_ROOMS_PER_IP"),
-    maxPairPerIpPerWindow: envInt("PONY_MAX_PAIR_PER_IP"),
-    maxWsPerIp: envInt("PONY_MAX_WS_PER_IP"),
-    maxConnectPerIpPerWindow: envInt("PONY_MAX_CONNECT_PER_IP"),
-    maxMessagesPerSocketPerSec: envInt("PONY_MAX_MESSAGES_PER_SEC"),
-    windowMs: envInt("PONY_LIMIT_WINDOW_MS"),
+    maxPayloadBytes: envInt("NASE_MAX_PAYLOAD_BYTES"),
+    maxHttpBodyBytes: envInt("NASE_MAX_HTTP_BODY_BYTES"),
+    maxRooms: envInt("NASE_MAX_ROOMS"),
+    maxRoomsPerIp: envInt("NASE_MAX_ROOMS_PER_IP"),
+    maxPairPerIpPerWindow: envInt("NASE_MAX_PAIR_PER_IP"),
+    maxWsPerIp: envInt("NASE_MAX_WS_PER_IP"),
+    maxConnectPerIpPerWindow: envInt("NASE_MAX_CONNECT_PER_IP"),
+    maxMessagesPerSocketPerSec: envInt("NASE_MAX_MESSAGES_PER_SEC"),
+    windowMs: envInt("NASE_LIMIT_WINDOW_MS"),
   };
 }
 

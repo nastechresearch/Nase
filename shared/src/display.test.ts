@@ -4,7 +4,7 @@ import { displayChoice } from "./display.ts";
 
 describe("display choice is independent of the relay", () => {
   const relays = [
-    "https://relay.pony.karlmagendavid.com",
+    "https://relay.nase.karlmagendavid.com",
     "http://100.64.8.8:8787",
     "ws://my-pc.tailnet.ts.net:8787",
   ];

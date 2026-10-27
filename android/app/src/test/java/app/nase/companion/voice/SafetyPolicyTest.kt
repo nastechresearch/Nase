@@ -33,7 +33,7 @@ class SafetyPolicyTest {
     }
 
     @Test
-    fun ponysOwnSendArrowIsNotGatedButOtherAppsStillAsk() {
+    fun nasesOwnSendArrowIsNotGatedButOtherAppsStillAsk() {
         // Nase's own Ask "Send" arrow, on the release and the debug build.
         assertEquals(Verdict.Allow, SafetyPolicy.forTap(TapTarget("Send", packageName = "app.nase.companion", appLabel = "Nase")))
         assertEquals(Verdict.Allow, SafetyPolicy.forTap(TapTarget("Send", packageName = "app.nase.companion.debug", appLabel = "Nase")))

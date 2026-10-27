@@ -171,7 +171,7 @@ object ScheduleParser {
     private fun taskOf(text: String): String {
         // Framing verbs the owner wraps around the real task, wherever they sit:
         // "tonight at 9 remind me to stretch" is really just "stretch".
-        var rest = text.replace(Regex("\\b(i want (you|pony) to|remind me to|remind me|set (up )?a reminder to|set a reminder)\\b"), " ")
+        var rest = text.replace(Regex("\\b(i want (you|nase) to|remind me to|remind me|set (up )?a reminder to|set a reminder)\\b"), " ")
             .replace(Regex("^\\s*(and |then |please |schedule |set up )+"), " ")
         SCHEDULE_PHRASES.forEach { rest = rest.replace(it, " ") }
         rest = rest
@@ -193,7 +193,7 @@ object ScheduleParser {
             .replace('’', '\'')
             .replace(Regex("\\b([ap])\\.m\\.?\\b"), "$1m")
             .replace(Regex("\\bo'?clock\\b"), " ")
-            .replace(Regex("\\bhey\\s+pony\\b[,!]?"), " ")
+            .replace(Regex("\\bhey\\s+nase\\b[,!]?"), " ")
             .replace(Regex("\\bplease\\b|\\bcan you\\b|\\bcould you\\b|\\bfor me\\b"), " ")
             .replace(Regex("[.!?]+"), " ")
             .replace(Regex("\\s+"), " ")

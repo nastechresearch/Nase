@@ -32,7 +32,7 @@ import java.util.zip.ZipInputStream
  */
 class WakeWordService : Service() {
     private val running = AtomicBoolean(false)
-    private val thread = Thread(::loop, "pony-wake")
+    private val thread = Thread(::loop, "nase-wake")
     private var plugged = false
     private var lastNotified = ""
 
@@ -113,7 +113,7 @@ class WakeWordService : Service() {
                         continue
                     }
                     model = Model(dir.absolutePath)
-                    recognizer = Recognizer(model, 16_000f, "[\"hey pony\",\"[unk]\"]")
+                    recognizer = Recognizer(model, 16_000f, "[\"hey nase\",\"[unk]\"]")
                 }
                 if (recorder == null) {
                     recorder = openMic()
@@ -221,7 +221,7 @@ class WakeWordService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_stat_pony)
+            .setSmallIcon(R.drawable.ic_stat_nase)
             .setContentTitle("Hey Nase")
             .setContentText(text)
             .setContentIntent(open)
@@ -245,7 +245,7 @@ class WakeWordService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
         val alert = NotificationCompat.Builder(this, ALERT_CHANNEL)
-            .setSmallIcon(R.drawable.ic_stat_pony)
+            .setSmallIcon(R.drawable.ic_stat_nase)
             .setContentTitle("Nase")
             .setContentText("Heard Hey Nase")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -276,8 +276,8 @@ class WakeWordService : Service() {
 
     companion object {
         private const val ACTION_STOP = "app.nase.companion.WAKE_STOP"
-        private const val CHANNEL_ID = "pony_wake"
-        private const val ALERT_CHANNEL = "pony_wake_alert"
+        private const val CHANNEL_ID = "nase_wake"
+        private const val ALERT_CHANNEL = "nase_wake_alert"
         private const val NOTIF_ID = 48
         private const val ALERT_ID = 49
         private const val MODEL_URL = "https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip"
@@ -305,7 +305,7 @@ class WakeWordService : Service() {
 
         fun isHeyNase(json: String): Boolean {
             val flat = json.lowercase().replace(Regex("[^a-z ]"), " ").replace(Regex("\\s+"), " ")
-            return flat.contains("hey pony")
+            return flat.contains("hey nase")
         }
     }
 }

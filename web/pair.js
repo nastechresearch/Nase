@@ -74,7 +74,7 @@ export function intentUrl(fields) {
   const fallback = encodeURIComponent(playStoreUrl());
   return (
     `intent://pair?${pairQuery(fields)}` +
-    `#Intent;scheme=pony;package=${ANDROID_PACKAGE};` +
+    `#Intent;scheme=nase;package=${ANDROID_PACKAGE};` +
     `S.browser_fallback_url=${fallback};end`
   );
 }

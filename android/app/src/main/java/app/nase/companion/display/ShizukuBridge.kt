@@ -123,7 +123,7 @@ object ShizukuBridge {
                 .processNameSuffix("display")
                 .debuggable(BuildConfig.DEBUG)
                 .version(BuildConfig.VERSION_CODE)
-                .tag("pony-display")
+                .tag("nase-display")
             val connection = object : ServiceConnection {
                 override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
                     if (binder != null) remote.set(INaseDisplay.Stub.asInterface(binder))

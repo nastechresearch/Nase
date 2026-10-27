@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-// Regenerates app/src/main/java/app/pony/companion/ui/design/PonyIcons.kt from Lucide SVGs.
+// Regenerates app/src/main/java/app/nase/companion/ui/design/NaseIcons.kt from Lucide SVGs.
 // Usage: node android/tools/lucide-icons.mjs
 import { writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const out = join(here, "../app/src/main/java/app/pony/companion/ui/design/PonyIcons.kt");
+const out = join(here, "../app/src/main/java/app/nase/companion/ui/design/NaseIcons.kt");
 const base = "https://raw.githubusercontent.com/lucide-icons/lucide/main/icons";
 
 // Kotlin name -> Lucide icon file.
@@ -176,18 +176,18 @@ import androidx.compose.ui.graphics.vector.addPathNodes
 import androidx.compose.ui.unit.dp
 
 /**
- * Pony's stroke icon set, generated from Lucide (ISC license, see
+ * Nase's stroke icon set, generated from Lucide (ISC license, see
  * assets/licenses/LICENSE-Lucide.txt) by android/tools/lucide-icons.mjs.
  * Tint follows the caller. Do not edit by hand.
  */
-object PonyIcons {
+object NaseIcons {
     const val STROKE = 1.75f
 
 ${body}
 
     private fun icon(name: String, vararg paths: String): ImageVector {
         val builder = ImageVector.Builder(
-            name = "Pony.$name",
+            name = "Nase.$name",
             defaultWidth = 24.dp,
             defaultHeight = 24.dp,
             viewportWidth = 24f,

@@ -1,5 +1,5 @@
 // Bundles the MCP server into dist/cli.js. The workspace packages
-// @pony/client and @pony/shared are inlined; every other npm package stays
+// @nase/client and @nase/shared are inlined; every other npm package stays
 // an external runtime dependency.
 import { build } from "esbuild";
 import { readFileSync } from "node:fs";
@@ -14,7 +14,7 @@ await build({
   format: "esm",
   target: "node20",
   external: Object.keys(pkg.dependencies).flatMap((name) => [name, `${name}/*`]),
-  define: { __PONY_MCP_VERSION__: JSON.stringify(pkg.version) },
+  define: { __NASE_MCP_VERSION__: JSON.stringify(pkg.version) },
   legalComments: "none",
   logLevel: "info",
 });

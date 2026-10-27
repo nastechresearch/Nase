@@ -5,7 +5,7 @@ import { InMemoryTransport } from "@modelcontextprotocol/server";
 import type { CallToolResult } from "@modelcontextprotocol/server";
 import { parsePairingInput } from "@nase/shared";
 import { MockPhone } from "@nase/client/mock-phone";
-import { PonySession } from "@nase/client";
+import { NaseSession } from "@nase/client";
 import { createRelay, type StartedRelay } from "../../../relay/src/server.ts";
 
 import { mkdtempSync, rmSync } from "node:fs";
@@ -13,11 +13,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import type { ControllerOptions } from "./controller.ts";
-import { createPonyMcp, listenMcp, type PonyMcp } from "./server.ts";
+import { createNaseMcp, listenMcp, type NaseMcp } from "./server.ts";
 
 let relay: StartedRelay | undefined;
-const sessions: PonySession[] = [];
-let mcp: PonyMcp | undefined;
+const sessions: NaseSession[] = [];
+let mcp: NaseMcp | undefined;
 let client: Client | undefined;
 let httpClose: (() => Promise<void>) | undefined;
 
@@ -40,15 +40,15 @@ afterEach(async () => {
 
 async function startMcp(extra: Omit<ControllerOptions, "relayHttp"> = {}): Promise<Client> {
   relay ??= await createRelay({ host: "127.0.0.1", port: 0 });
-  mcp = createPonyMcp({ relayHttp: relay.url, ...extra });
+  mcp = createNaseMcp({ relayHttp: relay.url, ...extra });
   const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
-  client = new Client({ name: "pony-test", version: "0.0.0" });
+  client = new Client({ name: "nase-test", version: "0.0.0" });
   await Promise.all([client.connect(clientTransport), mcp.server.connect(serverTransport)]);
   return client;
 }
 
 async function connectPhone(payload: string, phone = new MockPhone(), socketUrl?: string): Promise<MockPhone> {
-  const phoneSession = await PonySession.createPhone(payload, undefined, { socketUrl, reconnect: FAST });
+  const phoneSession = await NaseSession.createPhone(payload, undefined, { socketUrl, reconnect: FAST });
   sessions.push(phoneSession);
   phone.attach(phoneSession);
   await phoneSession.waitUntilReady();
@@ -90,7 +90,7 @@ function textOf(result: CallToolResult): string {
     .join("\n");
 }
 
-describe("pony mcp", () => {
+describe("nase mcp", () => {
   it("lists the phone tools", async () => {
     const caller = await startMcp();
     const listed = await caller.listTools();
@@ -154,7 +154,7 @@ describe("pony mcp", () => {
     expect(structured.pairingLink).toBe(summary.pairingLink);
     expect(structured.pairPageLink).toBe(summary.pairPageLink);
 
-    const secret = "s3cret-pony";
+    const secret = "s3cret-nase";
     const phone = await connectPhone(summary.payload);
     const status = await waitConnected(caller);
     expect(status.safetyCode).toMatch(/^\d{3}-\d{3}$/);
@@ -333,7 +333,7 @@ describe("pony mcp", () => {
     const listening = await listenMcp({ relayHttp: relay.url, port: 0, host: "127.0.0.1" });
     httpClose = () => listening.close();
     const { StreamableHTTPClientTransport } = await import("@modelcontextprotocol/client");
-    client = new Client({ name: "pony-http-test", version: "0.0.0" });
+    client = new Client({ name: "nase-http-test", version: "0.0.0" });
     await client.connect(new StreamableHTTPClientTransport(new URL(listening.url)));
     const listed = await client.listTools();
     expect(listed.tools.some((tool) => tool.name === "pair")).toBe(true);
@@ -378,14 +378,14 @@ describe("pony mcp", () => {
   it("keeps background targeting when the pairing payload advertises a Tailscale relay", async () => {
     relay = await createRelay({ host: "127.0.0.1", port: 0 });
     const caller = await (async () => {
-      mcp = createPonyMcp({
+      mcp = createNaseMcp({
         relayHttp: relay!.url,
         publicRelay: "http://100.64.8.8:8787",
         socketUrl: relay!.url,
         clientName: "Grok Bot",
       });
       const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
-      client = new Client({ name: "pony-tailscale", version: "0.0.0" });
+      client = new Client({ name: "nase-tailscale", version: "0.0.0" });
       await Promise.all([client.connect(clientTransport), mcp.server.connect(serverTransport)]);
       return client;
     })();
@@ -456,7 +456,7 @@ describe("pony mcp", () => {
   });
 });
 
-describe("pony mcp listen mode", () => {
+describe("nase mcp listen mode", () => {
   let dir = "";
 
   afterEach(() => {
@@ -512,7 +512,7 @@ describe("pony mcp listen mode", () => {
   });
 
   it("rejoins the saved pairing after a restart without pairing again", async () => {
-    dir = mkdtempSync(join(tmpdir(), "pony-mcp-"));
+    dir = mkdtempSync(join(tmpdir(), "nase-mcp-"));
     const statePath = join(dir, "mcp.json");
     const caller = await startMcp({ listen: true, statePath, reconnect: FAST });
     const paired = JSON.parse(textOf(await caller.callTool({ name: "pair", arguments: {} }))) as { payload: string };

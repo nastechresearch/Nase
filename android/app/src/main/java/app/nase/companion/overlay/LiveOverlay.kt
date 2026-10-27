@@ -95,7 +95,7 @@ fun pillTakesTouch(state: PillState): Boolean = when (state) {
 fun LiveOverlay(onCollapsed: () -> Unit) {
     val voice by VoiceController.voice.collectAsState()
     val task by TaskRuntime.live.collectAsState()
-    val ponyVisible by AppVisibility.visible.collectAsState()
+    val naseVisible by AppVisibility.visible.collectAsState()
     val context = LocalContext.current
     var now by remember { mutableStateOf(System.currentTimeMillis()) }
     var inCall by remember { mutableStateOf(false) }
@@ -107,7 +107,7 @@ fun LiveOverlay(onCollapsed: () -> Unit) {
         }
     }
     val live = pillState(voice, task, now)
-    val state = if (ponyVisible) PillState.Hidden else live
+    val state = if (naseVisible) PillState.Hidden else live
     LaunchedEffect(pillTakesTouch(state)) {
         OverlayHost.setInteractive(pillTakesTouch(state))
     }
@@ -295,7 +295,7 @@ private fun NoteCard(state: PillState.Note) {
         }
         when (state.action) {
             NoticeAction.ALLOW_MIC -> NaseButton("Allow microphone", { VoiceController.openNaseFor(NoticeAction.ALLOW_MIC) }, icon = NaseIcons.Mic, height = 48.dp)
-            NoticeAction.OPEN_PONY -> NaseButton("Open Nase", { VoiceController.openNaseFor(NoticeAction.OPEN_PONY) }, tone = ButtonTone.Secondary, height = 48.dp)
+            NoticeAction.OPEN_NASE -> NaseButton("Open Nase", { VoiceController.openNaseFor(NoticeAction.OPEN_NASE) }, tone = ButtonTone.Secondary, height = 48.dp)
             NoticeAction.RETRY -> NaseButton("Try again", { VoiceController.retryListening() }, icon = NaseIcons.Mic, tone = ButtonTone.Secondary, height = 48.dp)
             null -> Unit
         }

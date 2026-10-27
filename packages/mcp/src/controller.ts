@@ -11,7 +11,7 @@ import {
 } from "@nase/shared";
 import {
   ENDED_REASONS,
-  PonySession,
+  NaseSession,
   type CommandResult,
   type LinkState,
   type ReconnectOptions,
@@ -31,7 +31,7 @@ export interface PhoneStatus {
   connected: boolean;
   /** A pairing code is out and the phone hasn't finished pairing. */
   waiting: boolean;
-  /** `away`: the phone dropped off and Pony is holding the session. `reconnecting`: this side lost the relay. */
+  /** `away`: the phone dropped off and Nase is holding the session. `reconnecting`: this side lost the relay. */
   link: LinkState | "unpaired";
   safetyCode: string | null;
   token: string | null;
@@ -52,18 +52,18 @@ export interface PhoneStatus {
   queued: number;
   lastError: string | null;
   log: ActionLogEntry[];
-  /** Active IME id and whether the Pony keyboard can commit text. Null until the phone answers `info`. */
+  /** Active IME id and whether the Nase keyboard can commit text. Null until the phone answers `info`. */
   ime: ImeStatusInfo | null;
   imeCurrent: string | null;
-  ponyKeyboardUsable: boolean | null;
+  naseKeyboardUsable: boolean | null;
 }
 
 export interface ImeStatusInfo {
   current: string | null;
-  ponyEnabled: boolean;
-  ponySelected: boolean;
-  ponyActive: boolean;
-  ponyUsable: boolean;
+  naseEnabled: boolean;
+  naseSelected: boolean;
+  naseActive: boolean;
+  naseUsable: boolean;
 }
 
 export interface PairInfo {
@@ -115,7 +115,7 @@ const INBOX_LIMIT = 20;
  * the phone's session length, and rejoins after dropped connections.
  */
 export class PhoneController {
-  private session: PonySession | null = null;
+  private session: NaseSession | null = null;
   private connectedAt: number | null = null;
   private lastError: string | null = null;
   private relayHttp: string;
@@ -183,7 +183,7 @@ export class PhoneController {
       log: this.log.slice(0, 50),
       ime: this.phoneIme,
       imeCurrent: this.phoneIme?.current ?? null,
-      ponyKeyboardUsable: this.phoneIme?.ponyUsable ?? null,
+      naseKeyboardUsable: this.phoneIme?.naseUsable ?? null,
     };
   }
 
@@ -192,7 +192,7 @@ export class PhoneController {
     const waitMs = input.waitMs ?? 0;
     if (input.relay) this.relayHttp = input.relay.replace(/\/$/, "");
     await this.dropSession(true);
-    const session = await PonySession.createBot({
+    const session = await NaseSession.createBot({
       relayHttp: this.relayHttp,
       clientName: this.clientLabel(),
       publicRelay: this.options.publicRelay,
@@ -490,9 +490,9 @@ export class PhoneController {
   private restore(): void {
     const saved = this.store?.load();
     if (!saved) return;
-    let session: PonySession;
+    let session: NaseSession;
     try {
-      session = PonySession.resumeBot(saved, { reconnect: this.options.reconnect, socketUrl: this.options.socketUrl });
+      session = NaseSession.resumeBot(saved, { reconnect: this.options.reconnect, socketUrl: this.options.socketUrl });
     } catch {
       this.store?.clear();
       return;
@@ -502,7 +502,7 @@ export class PhoneController {
     this.append("pair", "rejoined the saved session", true);
   }
 
-  private adopt(session: PonySession): void {
+  private adopt(session: NaseSession): void {
     this.unsubscribe?.();
     this.disposeListener();
     this.session = session;
@@ -536,7 +536,7 @@ export class PhoneController {
   }
 
   /** Reads the phone's own session length so this side doesn't cut it short. Older phones don't answer. */
-  private async learnPhone(session: PonySession): Promise<void> {
+  private async learnPhone(session: NaseSession): Promise<void> {
     const info = await session.request("info", {}, 5_000).catch(() => null);
     if (this.session !== session || !info?.ok) return;
     const endsAt = info.result?.sessionEndsAt;
@@ -552,10 +552,10 @@ export class PhoneController {
       const body = ime as Record<string, unknown>;
       this.phoneIme = {
         current: typeof body.current === "string" ? body.current : null,
-        ponyEnabled: body.ponyEnabled === true,
-        ponySelected: body.ponySelected === true,
-        ponyActive: body.ponyActive === true,
-        ponyUsable: body.ponyUsable === true,
+        naseEnabled: body.naseEnabled === true,
+        naseSelected: body.naseSelected === true,
+        naseActive: body.naseActive === true,
+        naseUsable: body.naseUsable === true,
       };
     }
     this.rememberScreen(info);

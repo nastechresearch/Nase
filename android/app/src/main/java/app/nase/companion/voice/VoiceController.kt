@@ -64,7 +64,7 @@ data class PromptAnswer(val accepted: Boolean, val expired: Boolean = false, val
 
 data class AskAnswer(val text: String, val expired: Boolean = false, val stopped: Boolean = false)
 
-enum class NoticeAction { ALLOW_MIC, OPEN_PONY, RETRY }
+enum class NoticeAction { ALLOW_MIC, OPEN_NASE, RETRY }
 
 data class Notice(val id: Int, val title: String, val body: String, val action: NoticeAction? = null)
 
@@ -84,9 +84,9 @@ data class VoiceUi(
  */
 object VoiceController {
     private val main = Handler(Looper.getMainLooper())
-    private val worker = Executors.newSingleThreadExecutor { Thread(it, "pony-task") }
-    private val listener = Executors.newSingleThreadExecutor { Thread(it, "pony-listen") }
-    private val timers = Executors.newSingleThreadScheduledExecutor { Thread(it, "pony-timers") }
+    private val worker = Executors.newSingleThreadExecutor { Thread(it, "nase-task") }
+    private val listener = Executors.newSingleThreadExecutor { Thread(it, "nase-listen") }
+    private val timers = Executors.newSingleThreadScheduledExecutor { Thread(it, "nase-timers") }
     private val generation = AtomicInteger()
     private val running = AtomicBoolean(false)
     private val listening = AtomicBoolean(false)
@@ -234,7 +234,7 @@ object VoiceController {
         val app = context.applicationContext
         init(app)
         if (!VoicePrefs.voiceEnabled(app)) {
-            notice(app, "Voice is off", "Turn on Voice in Nase's settings to talk to Nase.", NoticeAction.OPEN_PONY)
+            notice(app, "Voice is off", "Turn on Voice in Nase's settings to talk to Nase.", NoticeAction.OPEN_NASE)
             return
         }
         if (!SpeechInput.micGranted(app)) {
@@ -906,6 +906,6 @@ object VoiceController {
 
     private fun wakeLock(context: Context): PowerManager.WakeLock? {
         val pm = context.getSystemService(PowerManager::class.java) ?: return null
-        return pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "pony:task").apply { setReferenceCounted(false) }
+        return pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "nase:task").apply { setReferenceCounted(false) }
     }
 }

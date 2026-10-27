@@ -29,7 +29,7 @@ object PairingLinks {
         return head.equals("nase://pair", ignoreCase = true)
     }
 
-    /** The https hand-off link, e.g. `https://download.pony…/pair#v=1&…`. */
+    /** The https hand-off link, e.g. `https://download.nase…/pair#v=1&…`. */
     fun isHttpPairLink(raw: String): Boolean {
         val trimmed = raw.trim()
         val scheme = trimmed.substringBefore("://", "").lowercase()
@@ -47,7 +47,7 @@ object PairingLinks {
 
     fun fields(raw: String): Fields {
         val trimmed = raw.trim()
-        require(looksLikePairing(trimmed)) { "not a pony pairing link" }
+        require(looksLikePairing(trimmed)) { "not a nase pairing link" }
         val map = params(trimmed)
         val v = map["v"].orEmpty()
         val relay = map["relay"].orEmpty()

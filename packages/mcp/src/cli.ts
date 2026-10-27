@@ -2,13 +2,13 @@
 import { parseArgs } from "node:util";
 
 import { StdioServerTransport } from "@modelcontextprotocol/server/stdio";
-import { DEFAULT_RELAY } from "@pony/shared";
+import { DEFAULT_RELAY } from "@nase/shared";
 import { defaultStatePath } from "@nase/client/listen";
 
-import { createPonyMcp, listenMcp } from "./server.ts";
+import { createNaseMcp, listenMcp } from "./server.ts";
 
-declare const __PONY_MCP_VERSION__: string | undefined;
-const PONY_MCP_VERSION = typeof __PONY_MCP_VERSION__ === "string" ? __PONY_MCP_VERSION__ : "dev";
+declare const __NASE_MCP_VERSION__: string | undefined;
+const NASE_MCP_VERSION = typeof __NASE_MCP_VERSION__ === "string" ? __NASE_MCP_VERSION__ : "dev";
 
 const { values } = parseArgs({
   options: {
@@ -24,32 +24,32 @@ const { values } = parseArgs({
 });
 
 if (values.version) {
-  console.log(PONY_MCP_VERSION);
+  console.log(NASE_MCP_VERSION);
   process.exit(0);
 }
 
 if (values.help) {
-  console.log(`pony-mcp ${PONY_MCP_VERSION}: MCP server for the Pony Android app
+  console.log(`nase-mcp ${NASE_MCP_VERSION}: MCP server for the Nase Android app
 
-Usage: pony-mcp [options]
+Usage: nase-mcp [options]
 
 Runs over stdio by default.
 
 Options:
-  --listen          keep the pairing and accept asks from the phone (PONY_LISTEN=1)
+  --listen          keep the pairing and accept asks from the phone (NASE_LISTEN=1)
   --http <port>     serve streamable HTTP on 127.0.0.1 instead of stdio
-  --relay <url>     relay URL (PONY_RELAY, default ${DEFAULT_RELAY})
-  --client <name>   name shown on the phone (PONY_CLIENT_NAME)
-  --state <path>    pairing file for listen mode (PONY_STATE)
+  --relay <url>     relay URL (NASE_RELAY, default ${DEFAULT_RELAY})
+  --client <name>   name shown on the phone (NASE_CLIENT_NAME)
+  --state <path>    pairing file for listen mode (NASE_STATE)
   -h, --help        show this help
   -v, --version     print the version`);
   process.exit(0);
 }
 
-const relayHttp = values.relay ?? process.env.PONY_RELAY ?? DEFAULT_RELAY;
-const clientName = values.client ?? process.env.PONY_CLIENT_NAME ?? "Grok Bot";
-const listen = values.listen === true || process.env.PONY_LISTEN === "1";
-const statePath = listen ? values.state ?? process.env.PONY_STATE ?? defaultStatePath("mcp.json") : values.state;
+const relayHttp = values.relay ?? process.env.NASE_RELAY ?? DEFAULT_RELAY;
+const clientName = values.client ?? process.env.NASE_CLIENT_NAME ?? "Grok Bot";
+const listen = values.listen === true || process.env.NASE_LISTEN === "1";
+const statePath = listen ? values.state ?? process.env.NASE_STATE ?? defaultStatePath("mcp.json") : values.state;
 const options = { relayHttp, clientName, listen, statePath };
 
 if (values.http !== undefined) {
@@ -59,14 +59,14 @@ if (values.http !== undefined) {
     process.exit(1);
   }
   const listening = await listenMcp({ ...options, port, host: "127.0.0.1" });
-  console.error(`pony-mcp streamable HTTP on ${listening.url} (localhost only, one phone)`);
+  console.error(`nase-mcp streamable HTTP on ${listening.url} (localhost only, one phone)`);
   if (listen) console.error(`Listen mode on. The pairing is kept in ${statePath}.`);
   const stop = () => void listening.close().finally(() => process.exit(0));
   process.once("SIGINT", stop);
   process.once("SIGTERM", stop);
 } else {
-  const { server, controller } = createPonyMcp(options);
-  if (listen) console.error(`pony-mcp listen mode. The pairing is kept in ${statePath}.`);
+  const { server, controller } = createNaseMcp(options);
+  if (listen) console.error(`nase-mcp listen mode. The pairing is kept in ${statePath}.`);
   let stopping = false;
   const stop = () => {
     if (stopping) return;

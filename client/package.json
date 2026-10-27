@@ -11,7 +11,7 @@
     "./mock-phone": "./src/mock-phone.ts"
   },
   "bin": {
-    "pony-phone": "./src/cli.ts"
+    "nase-phone": "./src/cli.ts"
   },
   "scripts": {
     "pair": "tsx src/cli.ts pair",

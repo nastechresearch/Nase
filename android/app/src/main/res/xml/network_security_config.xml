@@ -11,7 +11,7 @@
         <domain includeSubdomains="true">localhost</domain>
         <domain includeSubdomains="false">127.0.0.1</domain>
         <domain includeSubdomains="true">ts.net</domain>
-        <domain includeSubdomains="false">pony-tailscale.invalid</domain>
-        <domain includeSubdomains="false">pony-lan.invalid</domain>
+        <domain includeSubdomains="false">nase-tailscale.invalid</domain>
+        <domain includeSubdomains="false">nase-lan.invalid</domain>
     </domain-config>
 </network-security-config>

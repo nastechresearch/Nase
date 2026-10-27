@@ -5,9 +5,9 @@ import org.json.JSONObject
 const val PROTOCOL_VERSION = 1
 const val PAIRING_TTL_MS = 15 * 60 * 1000L
 const val SESSION_TTL_MS = 30 * 60 * 1000L
-const val HKDF_INFO = "pony-companion-v1"
-const val AEAD_AAD = "pony-v1"
-const val SAFETY_INFO = "pony-safety"
+const val HKDF_INFO = "nase-companion-v1"
+const val AEAD_AAD = "nase-v1"
+const val SAFETY_INFO = "nase-safety"
 
 data class PairingPayload(
     val relay: String,

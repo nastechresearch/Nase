@@ -7,7 +7,7 @@ object RecapShotPolicy {
      * "here's what I did" recap shows — so a shot is kept only while Nase itself
      * is in the background.
      */
-    fun keep(ponyForeground: Boolean): Boolean = !ponyForeground
+    fun keep(naseForeground: Boolean): Boolean = !naseForeground
 }
 
 /**

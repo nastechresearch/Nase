@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 /** Ongoing notice while a background action is in progress. Idle phones stay quiet. */
 object BackgroundNotifier {
-    private const val CHANNEL = "pony_background"
+    private const val CHANNEL = "nase_background"
     private const val NOTIF_ID = 62
     const val ACTION_STOP = "app.nase.companion.action.BACKGROUND_STOP"
 
@@ -53,7 +53,7 @@ object BackgroundNotifier {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
         val notice = NotificationCompat.Builder(context, CHANNEL)
-            .setSmallIcon(R.drawable.ic_stat_pony)
+            .setSmallIcon(R.drawable.ic_stat_nase)
             .setContentTitle("Nase is working")
             .setContentText(text)
             .setOngoing(true)

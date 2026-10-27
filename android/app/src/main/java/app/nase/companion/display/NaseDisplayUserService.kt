@@ -86,7 +86,7 @@ class NaseDisplayUserService(private val context: Context) : INaseDisplay.Stub()
 
     private fun create(width: Int, height: Int, density: Int, flags: Int): VirtualDisplay? {
         return try {
-            val worker = thread ?: HandlerThread("pony-shell-display").also {
+            val worker = thread ?: HandlerThread("nase-shell-display").also {
                 it.start()
                 thread = it
             }

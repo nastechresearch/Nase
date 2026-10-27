@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "PonyCompanion"
+rootProject.name = "NaseCompanion"
 include(":app")

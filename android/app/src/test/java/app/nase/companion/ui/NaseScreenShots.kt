@@ -411,7 +411,7 @@ class NaseScreenShots {
 
     @OptIn(ExperimentalRoborazziApi::class)
     private fun shot(name: String, dark: Boolean = true, fontScale: Float = 1f, content: @Composable () -> Unit) {
-        // build.gradle.kts sets roborazzi.output.dir (PONY_SCREENSHOTS, or build/outputs/roborazzi).
+        // build.gradle.kts sets roborazzi.output.dir (NASE_SCREENSHOTS, or build/outputs/roborazzi).
         val dir = File(System.getProperty("roborazzi.output.dir") ?: "build/outputs/roborazzi").apply { mkdirs() }
         captureRoboImage(
             file = File(dir, "$name.png"),
@@ -575,7 +575,7 @@ class NaseScreenShots {
     private val manifest = UpdateManifest(
         versionCode = 6,
         versionName = "0.5.1",
-        apkUrl = "https://download.nase.karlmagendavid.com/pony-0.5.1.apk",
+        apkUrl = "https://download.nase.karlmagendavid.com/nase-0.5.1.apk",
         sha256 = "a".repeat(64),
         size = 14_000_000,
         changelog = listOf("Reconnects twice as fast after a network switch", "Calculator math works in more calculator apps", "Quieter haptics while Nase types"),
@@ -584,7 +584,7 @@ class NaseScreenShots {
     )
 
     private val fakeShot: File by lazy {
-        val file = File.createTempFile("pony-shot", ".jpg")
+        val file = File.createTempFile("nase-shot", ".jpg")
         val bitmap = Bitmap.createBitmap(270, 520, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         val paint = Paint().apply { shader = LinearGradient(0f, 0f, 0f, 520f, 0xFF1E252D.toInt(), 0xFF3D7BF7.toInt(), Shader.TileMode.CLAMP) }

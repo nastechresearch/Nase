@@ -44,15 +44,15 @@ jobs:
         run: ./gradlew :app:assembleRelease --stacktrace
       - uses: actions/upload-artifact@v4
         with:
-          name: pony-companion-debug
+          name: nase-companion-debug
           path: android/app/build/outputs/apk/debug/*.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: pony-companion-release-unsigned
+          name: nase-companion-release-unsigned
           path: |
             android/app/build/outputs/apk/release/app-release-unsigned.apk
             android/app/build/outputs/apk/release/*.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: pony-companion-screenshots
+          name: nase-companion-screenshots
           path: android/app/build/outputs/roborazzi/*.png
