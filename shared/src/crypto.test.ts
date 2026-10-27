@@ -81,9 +81,9 @@ describe("session crypto", () => {
     expect(bytesToHex(alice.shared)).toBe(
       "4a5d9d5ba4ce2de1728e3bf480350f25e07e21c947d19e3376f09b3c1e161742",
     );
-    expect(alice.safetyCode).toBe("521415");
+    expect(alice.safetyCode).toBe("570538");
     expect(bytesToHex(alice.send)).toBe(
-      "a9a52697f10acdce71d060e9856ce4ae60d9cf2ff980b99ef8356efc8bb712db",
+      "044c2d7c9353456f23db4ab8fdeb963add16c4c69a1d554a32cac26faa22bc7b",
     );
     const frame = encryptWithNonce(
       alice.send,
@@ -91,7 +91,7 @@ describe("session crypto", () => {
       new TextEncoder().encode('{"op":"ping"}'),
     );
     expect(bytesToHex(frame)).toBe(
-      "000102030405060708090a0b57a09489a72c3378ec0d8d0a285cf843d8e6d5c6a759091f6816e43040",
+      "000102030405060708090a0bd0b20929ad89981d7a646211af1fc239e0934de74fac2a325275255458",
     );
     expect(new TextDecoder().decode(decrypt(bob.recv, frame))).toBe('{"op":"ping"}');
   });

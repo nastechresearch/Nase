@@ -31,14 +31,14 @@ class SessionCryptoTest {
             hex(phone.shared),
         )
         assertEquals(phone.safetyCode, bot.safetyCode)
-        assertEquals("521415", phone.safetyCode)
+        assertEquals("570538", phone.safetyCode)
         assertEquals(
-            "a9a52697f10acdce71d060e9856ce4ae60d9cf2ff980b99ef8356efc8bb712db",
+            "044c2d7c9353456f23db4ab8fdeb963add16c4c69a1d554a32cac26faa22bc7b",
             hex(phone.send),
         )
         assertEquals(hex(phone.send), hex(bot.recv))
         val frame = SessionCrypto.hexToBytes(
-            "000102030405060708090a0b57a09489a72c3378ec0d8d0a285cf843d8e6d5c6a759091f6816e43040",
+            "000102030405060708090a0bd0b20929ad89981d7a646211af1fc239e0934de74fac2a325275255458",
         )
         val plain = String(SessionCrypto.decrypt(bot.recv, frame))
         assertEquals("{\"op\":\"ping\"}", plain)
