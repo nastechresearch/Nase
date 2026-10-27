@@ -14,6 +14,9 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # Generated code is committed, so a descriptor edit without a regenerate
+      # must fail here rather than silently shipping stale surfaces.
+      - run: npm run describe -- --check
       - run: npm run typecheck
       - run: npm test
       - run: npm run demo
