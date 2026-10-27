@@ -4,9 +4,15 @@ export const PROTOCOL_VERSION = 1;
 /** How long a pairing token stays valid after it's shown. Raised to 15 minutes so there's time to scan. */
 export const PAIRING_TTL_MS = 15 * 60 * 1000;
 export const SESSION_TTL_MS = 30 * 60 * 1000;
-export const HKDF_INFO = "nase-companion-v1";
-export const AEAD_AAD = "nase-v1";
-export const SAFETY_INFO = "nase-safety";
+/**
+ * Key-derivation context strings. Deliberately brand-free: a rebrand must not
+ * silently re-derive every session key. The `-v2` suffix marks the material as
+ * distinct from the original build's, so mismatched peers surface as a
+ * disagreement on the displayed safety code rather than a corrupt frame.
+ */
+export const HKDF_INFO = "companion-session-v2";
+export const AEAD_AAD = "session-v2";
+export const SAFETY_INFO = "safety-code-v2";
 /**
  * Default long-poll window for `wait_for_request`. Kept short so a missed reply
  * re-polls in seconds instead of after a minute (a stale 65 s wait looked like a

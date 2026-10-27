@@ -10,7 +10,6 @@ import type { CommandResult, ProgressEvent, RequestOptions } from "@nase/client"
 import { PhoneController, endedMessage, type ControllerOptions, type DisplayOpts } from "./controller.ts";
 
 export const NASE_MCP_VERSION = "0.6.4";
-export const NASE_MCP_VERSION = "0.6.4";
 
 const displayArgs = {
   background: z

@@ -4,6 +4,7 @@
     <string name="a11y_label">Nase control</string>
     <string name="a11y_description">Lets your own assistant read on-screen text and perform taps, swipes, and typing that you start. Nase asks before sending, paying, buying, deleting, calling, or changing security settings. Password fields are hidden and cannot be typed into. Nase watches for call screens only so it never touches them, and it waits for pop-ups to move instead of tapping them. Nase does not read the clipboard unless you turn that on, and it does not act while you are disconnected.</string>
     <string name="ime_label">Nase keyboard</string>
+    <string name="ime_subtype">Nase</string>
     <string name="accessibility_service_description">@string/a11y_description</string>
     <string name="notif_channel">Nase session</string>
     <string name="notif_title">Nase is connected</string>
