@@ -17,6 +17,10 @@ jobs:
       # Generated code is committed, so a descriptor edit without a regenerate
       # must fail here rather than silently shipping stale surfaces.
       - run: npm run describe -- --check
+      # A component named in the manifest but absent from the source compiles
+      # fine and fails only at runtime, which is how the accessibility service
+      # ended up uninstantiable after the rebrand.
+      - run: npm run describe:manifest
       - run: npm run typecheck
       - run: npm test
       - run: npm run demo

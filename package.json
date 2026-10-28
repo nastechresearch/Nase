@@ -19,7 +19,8 @@
     "mcp": "npm run start -w nase-mcp --",
     "typecheck": "tsc -p tsconfig.json",
     "describe": "node tools/describe/src/generate.mjs",
-    "describe:secrets": "node tools/describe/src/secrets.mjs"
+    "describe:secrets": "node tools/describe/src/secrets.mjs",
+    "describe:manifest": "node tools/describe/src/manifest.mjs"
   },
   "devDependencies": {
     "yaml": "^2.9.1"
