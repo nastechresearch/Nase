@@ -24,6 +24,21 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // Release signing comes from the environment (CI) so no key ever lives in
+    // this repo. Without NASE_KEYSTORE_PATH the release build stays unsigned,
+    // which is what local dev and the ci lane want.
+    signingConfigs {
+        create("release") {
+            val storePath = System.getenv("NASE_KEYSTORE_PATH")
+            if (storePath != null) {
+                storeFile = file(storePath)
+                storePassword = System.getenv("NASE_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("NASE_KEY_ALIAS") ?: "nase"
+                keyPassword = System.getenv("NASE_KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         debug {
             isMinifyEnabled = false
@@ -32,6 +47,7 @@ android {
         }
         release {
             isMinifyEnabled = true
+            signingConfig = if (System.getenv("NASE_KEYSTORE_PATH") != null) signingConfigs.getByName("release") else null
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
