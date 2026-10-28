@@ -1,0 +1,67 @@
+name: Feature request
+description: Describe the problem Nase should solve. The proposed solution is optional.
+title: "[feature] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Nase is a harness: it shares the screen and performs gestures, and you pick the
+        brain. Requests that fit that shape are easier to act on. Describe the task that
+        is hard or impossible today before describing the change you want.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Pick the closest area. One report can mention more than one.
+      options:
+        - App resolution (open_app, open_settings)
+        - Brain (Claude, OpenAI, Gemini, xAI Grok, OpenRouter, Grok Bot)
+        - Android (app, accessibility, hidden display, typing)
+        - MCP (server, tools, listen mode)
+        - Relay (Nase Cloud or a private relay)
+        - Docs (README, CHANGELOG, PLAY_POLICY, docs/)
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      description: The task, the apps involved, and where Nase gets stuck or makes it harder. A concrete example beats an abstract feature.
+      placeholder: "Reordering groceries takes 12 taps because Nase cannot ... I want to say ... and have it finish."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you like Nase to do?
+      description: Optional. If you have a specific design in mind, describe it. Say which brain or host should carry it.
+    validations:
+      required: false
+
+  - type: textarea
+    id: workaround
+    attributes:
+      label: What do you do instead today?
+      description: Optional. Manual steps, another tool, or a routine that almost works.
+    validations:
+      required: false
+
+  - type: input
+    id: nase_version
+    attributes:
+      label: Nase version
+      description: Optional. Settings > Check for updates, or the version in latest.json.
+      placeholder: "0.6.4 (versionCode 11)"
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Before submitting
+      options:
+        - label: I removed passwords, API keys, pairing links, and safety codes from this report.
+          required: true

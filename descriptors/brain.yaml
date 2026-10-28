@@ -1,0 +1,546 @@
+# =============================================================================
+# descriptors/brain.yaml - Nase on-device brain providers, as data.
+#
+# THE KOTLIN SOURCE IS AUTHORITATIVE. This file is only a projection of the
+# files listed under meta.authoritative_source, read at meta.commit. It must
+# never contradict them; if the two ever disagree, the Kotlin wins and this
+# file is stale. Regenerate rather than hand-edit.
+#
+# Only facts visible in those files are recorded here. No model names, context
+# windows, token budgets, prices, or rate limits were invented: anything the
+# code does not state is absent and is listed under `gaps`.
+# =============================================================================
+
+meta:
+  commit: bc67519007b341ab91c2428cec83624ff362f12d
+  commit_subject: "Fix two more rebrand leftovers blocking the android build"
+  authoritative_source:
+    - android/app/src/main/java/app/nase/companion/brain/ProviderPreset.kt
+    - android/app/src/main/java/app/nase/companion/brain/ModelTypes.kt
+    - android/app/src/main/java/app/nase/companion/brain/BrainRouter.kt
+    - android/app/src/main/java/app/nase/companion/brain/AdapterRequests.kt
+    - android/app/src/main/java/app/nase/companion/brain/BrainLibrary.kt
+    - android/app/src/main/java/app/nase/companion/brain/BrainError.kt
+    - android/app/src/main/java/app/nase/companion/brain/AgentLoop.kt
+    - android/app/src/main/java/app/nase/companion/brain/ChatClient.kt
+    - android/app/src/main/java/app/nase/companion/voice/PhoneOps.kt
+  derived_file: descriptors/brain.yaml
+  secrets: >-
+    No key material is described or stored here. The API key is sent only in a
+    request header, never in the body or URL (AdapterRequests.kt:7, :196-211);
+    at rest it lives in the sealed key vault, never in providers.json
+    (BrainLibrary.kt:6-12).
+
+# -----------------------------------------------------------------------------
+# providers
+#
+# id is a stable slug chosen for this file; `preset_enum` is the actual Kotlin
+# enum constant (ProviderPreset.kt:22-75) and is what the app persists as
+# `preset` in providers.json (BrainLibrary.kt:123).
+#
+# dialect names the wire dialect the code branches on (ProviderKind,
+# ProviderPreset.kt:3, dispatched in AdapterRequests.kt:167-171 and :187-191).
+# -----------------------------------------------------------------------------
+providers:
+  - id: xai
+    preset_enum: XAI
+    label: "xAI Grok"
+    vendor: "xAI"
+    dialect: openai_compat
+    kind_enum: OPENAI_COMPAT
+    base_url: "https://api.x.ai/v1"
+    request_path: "/chat/completions"
+    final_url: "https://api.x.ai/v1/chat/completions"
+    key_console_url: "https://console.x.ai/team/default/api-keys"
+    blurb: "Grok models from xAI, running on this phone with your xAI key."
+    models:
+      default: "grok-4.7"
+    picker:
+      group: primary
+      order: 4
+    verified_at: "ProviderPreset.kt:22-30; AdapterRequestTest.kt:22"
+
+  - id: openai
+    preset_enum: OPENAI
+    label: "OpenAI"
+    vendor: "OpenAI"
+    dialect: openai_compat
+    kind_enum: OPENAI_COMPAT
+    base_url: "https://api.openai.com/v1"
+    request_path: "/chat/completions"
+    final_url: "https://api.openai.com/v1/chat/completions"
+    key_console_url: "https://platform.openai.com/api-keys"
+    blurb: "GPT models from OpenAI, running on this phone with your OpenAI key."
+    models:
+      default: "gpt-4.1"
+    picker:
+      group: primary
+      order: 3
+    verified_at: "ProviderPreset.kt:31-39; AdapterRequestTest.kt:144"
+
+  - id: anthropic
+    preset_enum: ANTHROPIC
+    label: "Anthropic Claude"
+    vendor: "Anthropic"
+    dialect: anthropic
+    kind_enum: ANTHROPIC
+    base_url: "https://api.anthropic.com"
+    request_path: "/v1/messages"
+    final_url: "https://api.anthropic.com/v1/messages"
+    key_console_url: "https://console.anthropic.com/settings/keys"
+    blurb: "Claude models from Anthropic, running on this phone with your Anthropic key."
+    models:
+      default: "claude-opus-5-5"
+      # Built-in defaults the code has replaced; a saved brain still on one of
+      # these is migrated to `default` on load (ProviderPreset.kt:86-93,
+      # BrainLibrary.kt:109-114). A hand-picked model is never touched.
+      superseded:
+        - "claude-sonnet-4-5"
+    picker:
+      group: primary
+      order: 1
+    verified_at: "ProviderPreset.kt:40-48; AdapterRequestTest.kt:56"
+
+  - id: gemini
+    preset_enum: GEMINI
+    label: "Google Gemini"
+    vendor: "Google"
+    dialect: gemini
+    kind_enum: GEMINI
+    base_url: "https://generativelanguage.googleapis.com/v1beta"
+    request_path: "/models/{url_encoded_model}:generateContent"
+    final_url_template: "https://generativelanguage.googleapis.com/v1beta/models/{url_encoded_model}:generateContent"
+    key_console_url: "https://aistudio.google.com/api-keys"
+    blurb: "Gemini models from Google, running on this phone with your Google AI key."
+    models:
+      default: "gemini-2.5-flash"
+    picker:
+      group: primary
+      order: 2
+    verified_at: "ProviderPreset.kt:49-57; AdapterRequests.kt:386,405; AdapterRequestTest.kt:79"
+
+  - id: openrouter
+    preset_enum: OPENROUTER
+    label: "OpenRouter"
+    vendor: "OpenRouter"
+    dialect: openai_compat
+    kind_enum: OPENAI_COMPAT
+    base_url: "https://openrouter.ai/api/v1"
+    request_path: "/chat/completions"
+    final_url: "https://openrouter.ai/api/v1/chat/completions"
+    key_console_url: "https://openrouter.ai/keys"
+    blurb: "Any model through OpenRouter, with one OpenRouter key."
+    models:
+      default: "openai/gpt-4.1"
+    # Only preset that adds attribution headers (AdapterRequests.kt:225-228).
+    extra_headers:
+      HTTP-Referer: "https://nase.karlmagendavid.com"
+      X-Title: "Nase"
+    picker:
+      group: advanced
+      order: 5
+    verified_at: "ProviderPreset.kt:58-66; AdapterRequests.kt:225-228; AdapterRequestTest.kt:128-129"
+
+  - id: custom
+    preset_enum: CUSTOM
+    label: "Custom OpenAI-compatible"
+    vendor: "your provider"
+    dialect: openai_compat
+    kind_enum: OPENAI_COMPAT
+    # Both are empty in the enum: the owner must supply them.
+    base_url: ""
+    model: ""
+    request_path: "/chat/completions"
+    final_url_template: "{owner_base_url}/chat/completions"
+    key_console_url: ""
+    blurb: "Any OpenAI-compatible endpoint. Set the base URL and model yourself."
+    models:
+      default: ""
+    picker:
+      group: advanced
+      order: 6
+    required_from_owner:
+      - base_url
+      - model
+      - api_key
+    verified_at: "ProviderPreset.kt:67-75"
+
+# -----------------------------------------------------------------------------
+# Request shaping per dialect (AdapterRequests.kt:158-467).
+# -----------------------------------------------------------------------------
+dialects:
+  openai_compat:
+    used_by: [xai, openai, openrouter, custom]
+    url: "{base_url}/chat/completions"
+    method: POST
+    auth:
+      header: Authorization
+      scheme: "Bearer {api_key}"
+    system_prompt: "sent inline as a message with role=system"
+    tool_result_message:
+      role: tool
+      fields: [tool_call_id, content]
+    assistant_tool_call_message:
+      role: assistant
+      fields: [content, "tool_calls[] {id, type=function, function{name, arguments}}"]
+    image:
+      shape: "content[] {type=text, text} + {type=image_url, image_url{url=data:image/jpeg;base64,...}}"
+    output_token_limit:
+      with_tools: absent
+      without_tools: 16
+      field: max_tokens
+      note: "max_tokens is only written for the no-tools probe; with tools the field is omitted."
+    response_parse:
+      text: "choices[0].message.content"
+      calls: "choices[0].message.tool_calls[] (function.arguments is a JSON string parsed to Map<String,String>)"
+      call_id: "item.id, defaulting to \"call\" when blank"
+
+  anthropic:
+    used_by: [anthropic]
+    url: "{base_url}/v1/messages"
+    method: POST
+    auth:
+      header: x-api-key
+      scheme: "{api_key}"
+      extra_headers:
+        anthropic-version: "2023-06-01"
+    system_prompt: "hoisted out of messages into top-level `system` (system messages joined with newline)"
+    tool_result_message:
+      role: user
+      block: "content[] {type=tool_result, tool_use_id, content}"
+    assistant_tool_call_message:
+      role: assistant
+      block: "content[] {type=text} + {type=tool_use, id, name, input}"
+    image:
+      shape: "content[] {type=image, source{type=base64, media_type=image/jpeg, data}}"
+    output_token_limit:
+      with_tools: 1024
+      without_tools: 16
+      field: max_tokens
+      note: "max_tokens is always present for this dialect."
+    response_parse:
+      text: "content[] blocks of type=text, joined with newline"
+      calls: "content[] blocks of type=tool_use (input object -> Map<String,String>)"
+      call_id: "block.id, defaulting to \"tool\" when blank"
+
+  gemini:
+    used_by: [gemini]
+    url: "{base_url}/models/{url_encoded_model}:generateContent"
+    method: POST
+    auth:
+      header: x-goog-api-key
+      scheme: "{api_key}"
+    system_prompt: "hoisted into top-level `systemInstruction.parts[0].text`"
+    tool_result_message:
+      role: user
+      block: "parts[] {functionResponse{name, response{output}}}"
+      note: >-
+        Gemini has no call id here, so the loop's toolCallId (which Gemini
+        parsing set to the function name) is echoed as functionResponse.name,
+        defaulting to "tool" (AdapterRequests.kt:417-423, :508-512).
+    assistant_tool_call_message:
+      role: model
+      block: "parts[] {text} + {functionCall{name, args}}"
+    image:
+      shape: "parts[] {inlineData{mimeType=image/jpeg, data}}"
+    output_token_limit:
+      with_tools: absent
+      without_tools: 16
+      field: generationConfig.maxOutputTokens
+      note: "generationConfig is only written for the no-tools probe."
+    response_parse:
+      text: "candidates[0].content.parts[].text, joined with newline"
+      calls: "candidates[0].content.parts[].functionCall (name, args)"
+      call_id: "the function name (Gemini carries none)"
+
+# -----------------------------------------------------------------------------
+# Tool schema shape (AdapterRequests.kt:453-462, :284-291, :371-375, :447-451).
+# One shared JSON-Schema builder feeds all three dialects; only the envelope
+# around it differs. Every property is a flat scalar (number|string); there are
+# no nested objects, enums, or additionalProperties.
+# -----------------------------------------------------------------------------
+toolSchemas:
+  parameter_schema:
+    type: object
+    properties_shape:
+      "<prop name>": { type: "number|string", description: "<string>" }
+    required: "array of property names"
+    notes:
+      - "Tool keys are supplied in one fixed order per tool; arrays follow that order, not alphabetical."
+      - "Model-supplied arguments are flattened to Map<String,String> for all dialects, so numbers arrive as strings and are re-parsed per tool."
+
+  envelopes:
+    openai_compat:
+      location: "body.tools[]"
+      shape:
+        type: function
+        function:
+          name: "<tool name>"
+          description: "<tool description>"
+          parameters: "<parameter_schema>"
+    anthropic:
+      location: "body.tools[]"
+      shape:
+        name: "<tool name>"
+        description: "<tool description>"
+        input_schema: "<parameter_schema>"
+    gemini:
+      location: "body.tools[0].functionDeclarations[]"
+      shape:
+        name: "<tool name>"
+        description: "<tool description>"
+        parameters: "<parameter_schema>"
+
+  # Every preset sends the same 18 tools when tools are enabled
+  # (AdapterRequests.kt:10-156; the test asserts parity per dialect).
+  tool_count: 18
+  tools:
+    - name: tap
+      required: [x, y]
+      optional: []
+    - name: swipe
+      required: [x1, y1, x2, y2]
+      optional: [durationMs]
+    - name: long_press
+      required: [x, y]
+      optional: [durationMs]
+    - name: drag
+      required: [x1, y1, x2, y2]
+      optional: [durationMs]
+    - name: pinch
+      required: [x, y, fromDistance, toDistance]
+      optional: [durationMs]
+    - name: type
+      required: [text]
+      optional: [mode]
+    - name: key
+      required: [key]
+      optional: []
+    - name: open_app
+      required: [package]
+      optional: []
+    - name: open_settings
+      required: [name]
+      optional: [package]
+    - name: wait_idle
+      required: []
+      optional: [timeoutMs]
+    - name: speak
+      required: [text]
+      optional: []
+    - name: ask
+      required: [text]
+      optional: []
+    - name: remember
+      required: [key, value]
+      optional: []
+    - name: forget
+      required: [key]
+      optional: []
+    - name: schedule_task
+      required: [task, time]
+      optional: []
+    - name: copy_text
+      required: [label, text]
+      optional: []
+    - name: recall_text
+      required: [label]
+      optional: []
+    - name: done
+      required: [text]
+      optional: []
+
+  # Set-level facts the loop depends on (AgentLoop.kt:193-200).
+  loop_sets:
+    finish: [done, answer, finish]      # ends the task; answer is not in the schema list
+    ask: ask                            # handled by the loop, not by PhoneOps
+    touches_phone: [tap, swipe, long_press, drag, pinch, type, key, open_app, open_settings]
+
+  # If a dialect returns text and no tool calls, a bare {"action": ...} JSON
+  # object is turned into one synthetic call (AdapterRequests.kt:192-193,
+  # :517-524). Applies to all three dialects.
+  text_fallback:
+    trigger: "no parsed tool calls, text starts with { (after stripping ``` and ```json)"
+    reads: "action (required) plus all other keys as args"
+    call_id: fallback
+
+# -----------------------------------------------------------------------------
+# Probe ("Test & Save"): a cheap key check, no tools, prompt
+# "Reply with the word ok." (AdapterRequests.kt:174-182). Output-token caps per
+# dialect are in `dialects.*.output_token_limit`.
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# Size limits on what the model is shown. Only limits visible in the code.
+# -----------------------------------------------------------------------------
+observationLimits:
+  screen_tree:
+    max_chars: 8000
+    behaviour: "hard truncation of the accessibility tree string"
+    source: "PhoneOps.kt:42"
+  node_label:
+    max_chars: 80
+    behaviour: "each node's text/contentDescription/hint is truncated; password fields read as [password]"
+    source: "UiTreeDumper.kt:76-81"
+  screenshot:
+    passthrough_max_bytes: 120000
+    shrink_below_or_equal_bytes: 120000
+    downscale_factor: 0.45
+    jpeg_quality: 45
+    drop_if_over_bytes: 180000
+    behaviour: >-
+      JPEG up to 120000 bytes is sent as-is; larger images are decoded,
+      scaled to 45% of each dimension, re-encoded at JPEG quality 45, and
+      dropped entirely (no image this turn) if still over 180000 bytes.
+    source: "PhoneOps.kt:286-310"
+  provider_error_body:
+    max_chars: 300
+    source: "ChatClient.kt:54; probe message ChatClient.kt:39"
+  error_message_snippet:
+    max_chars: 240
+    source: "BrainError.kt:24"
+  message_history:
+    max_chars: null
+    note: "No cap found: tool observations are appended verbatim (AgentLoop.kt:87) and history is never trimmed."
+
+transport:
+  http_timeout_seconds: 60
+  timeout_kind: "OkHttp callTimeout"
+  source: "ChatClient.kt:11-13"
+
+# -----------------------------------------------------------------------------
+# Error categories the agent loop acts on (BrainError.kt, AgentLoop.kt:109-139).
+# -----------------------------------------------------------------------------
+errors:
+  kinds:
+    - id: TIMEOUT
+      retryable: true
+      loop_action: "retry with backoff"
+      owner_message: "The brain took too long to answer — try again."
+    - id: NETWORK
+      retryable: true
+      loop_action: "retry with backoff"
+      owner_message: "I couldn't reach the brain just now. Check your connection and try again."
+    - id: RATE_LIMIT
+      retryable: true
+      loop_action: "wait, then retry within the rate-limit budget"
+      owner_message: "The brain is rate-limited right now — try again in a moment."
+    - id: HARD_QUOTA
+      retryable: false
+      loop_action: "fail the step immediately"
+      owner_message: "The brain's quota is used up — check the plan and billing."
+    - id: AUTH
+      retryable: false
+      loop_action: "fail the step immediately"
+      owner_message: "the raw provider message, else \"The brain key was rejected.\""
+    - id: OTHER
+      retryable: false
+      loop_action: "fail the step immediately"
+      owner_message: "the raw error message, else \"The brain didn't answer.\""
+
+  classification:
+    order: [auth, hard_quota, rate_limit, legacy_exception_type]
+    source: "BrainError.kt:60-78, :188-210"
+    auth:
+      statuses: [401, 403]
+      markers:
+        - "invalid api key"
+        - "invalid_api_key"
+        - "incorrect api key"
+        - "authentication_error"
+        - "invalid x-api-key"
+        - "api key not valid"
+        - "api_key_invalid"
+    hard_quota:
+      markers:
+        - "insufficient_quota"
+        - "insufficient quota"
+        - "billing_not_active"
+        - "quota exceeded for your current billing"
+      daily_markers:
+        - "per day"
+        - "perday"
+        - "per-day"
+        - "daily quota"
+        - "daily_quota"
+        - "requestdaily"
+        - "requests per day"
+      rule: "billing + (quota|exceeded|plan), any daily marker, or \"exceeded your current quota\" that is not per-minute"
+    rate_limit:
+      statuses: [429]
+      markers:
+        - "rate_limit_exceeded"
+        - "rate_limit_error"
+        - "rate limit"
+        - "rate-limit"
+        - "ratelimit"
+        - "too many requests"
+        - "resource has been exhausted"
+      rule: "\"resource_exhausted\" counts as rate limit when per-minute or not a hard quota"
+      per_minute_markers: ["per minute", "perminute", "per-minute", "per_minute", "requests per minute"]
+    legacy_exception_type:
+      timeout: [SocketTimeoutException, "InterruptedIOException containing timeout"]
+      network: [UnknownHostException, ConnectException, SocketException, IOException]
+      by_message: ["timeout", "unable to resolve host", "failed to connect", "connection reset", "network is unreachable"]
+      fallback: OTHER
+
+  retry_after:
+    header: Retry-After
+    accepts: ["delta seconds", "RFC 1123 HTTP-date"]
+    body_hints:
+      - pattern: "\"retryDelay\": \"<n>s\""
+        unit: seconds
+      - pattern: "\"retry_after_ms\": <n>"
+        unit: milliseconds
+      - pattern: "\"retry_after\": <n>"
+        unit: seconds
+      - pattern: "\"retryDelay\": {\"seconds\": <n>}"
+        unit: seconds
+    source: "BrainError.kt:120-153, :212-216"
+
+  policy:
+    base_backoff_ms: 600
+    max_backoff_ms: 4000
+    backoff_formula: "600ms << (attempt-1), capped at 4000ms"
+    model_retries: 3
+    rate_limit_retries: 5
+    rate_limit_budget_ms: 60000
+    rate_limit_backoff_base_ms: 1000
+    rate_limit_jitter: 0.2
+    rate_limit_backoff_formula: "1000ms << (attempt-1) * (1 +/- 20%)"
+    wait_slice_ms: 200
+    step_cap: 30
+    source: "BrainError.kt:44-56, :87-102; AgentLoop.kt:181-191, :109-139"
+
+# -----------------------------------------------------------------------------
+# Who answers an ask. Grok Bot is an external agent over Nase's connector and
+# has no API key and no AdapterRequests branch; it is not a ProviderPreset.
+# -----------------------------------------------------------------------------
+routing:
+  source: "BrainRouter.kt; GrokBot.kt"
+  modes: [GROK, PHONE]
+  fallbacks: [PHONE, BASICS]
+  reasons: [CHOSEN, GROK_OFFLINE, GROK_NOT_LISTENING, NO_KEY]
+  reasons_note: "GROK_NOT_LISTENING is declared but never constructed anywhere in the tree (BrainRouter.kt:15)."
+  handoff_ms: 8000
+  external_agent:
+    id: grok_bot
+    label: "Grok Bot"
+    auth: "no API key; paired connector client"
+    dialect: null
+    in_provider_presets: false
+    template_url: "https://example.com/nase-grok-bot-template"
+    verified_at: "GrokBot.kt:3-19; BrainRouter.kt:25-41"
+
+# -----------------------------------------------------------------------------
+# What the code does not state. These fields are deliberately absent above and
+# must not be filled in without a new source in the repo.
+# -----------------------------------------------------------------------------
+gaps:
+  - "No context-window sizes for any model."
+  - "No per-model token limits, output caps, or pricing; the only token numbers in the code are the 16-token probe cap and Anthropic's 1024 max_tokens with tools, which are request parameters, not model limits."
+  - "No rate-limit quotas or tiers; only retry timing constants."
+  - "No model catalog or list endpoint; `models.default` is the single default, and superseded lists only replaced built-in defaults. Any other model id is owner-typed free text."
+  - "No streaming, temperature, top_p, or other sampling parameters are sent."
+  - "No cap on conversation history length or on arbitrary tool-result text."
+  - "No retry/fallback between different providers; fallback is only between Grok Bot, one phone brain, and Basics (BrainRouter.kt)."

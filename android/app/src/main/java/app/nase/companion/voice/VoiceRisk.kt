@@ -27,38 +27,12 @@ sealed class Verdict {
 /**
  * Taps that must be spoken back and accepted with an explicit yes: password
  * fields, payments, sending, buying, deleting, calling, posting, and security
- * changes. Label matching still uses the control's own label or accessibility
- * text. On a [MoneyScreens] hit — a known payment app or a checkout heuristic
- * — every tap asks first, including a bare icon or a tap by coordinates.
+ * changes. The verbs live in [SafetyTable], keyed by the op that runs them.
+ * Label matching still uses the control's own label or accessibility text. On
+ * a [MoneyScreens] hit — a known payment app or a checkout heuristic — every
+ * tap asks first, including a bare icon or a tap by coordinates.
  */
 object SafetyPolicy {
-    private data class Rule(val pattern: Regex, val prompt: String, val reason: String)
-
-    private fun words(vararg alternatives: String) =
-        Regex("\\b(${alternatives.joinToString("|")})\\b", RegexOption.IGNORE_CASE)
-
-    private val rules = listOf(
-        Rule(words("send money", "request money", "send payment", "pay now", "pay", "payment", "checkout", "check out", "confirm payment", "slide to pay", "tap to pay", "complete purchase", "authori[sz]e payment"), "Pay?", "payment"),
-        Rule(words("buy", "buy now", "purchase", "place order", "order now", "subscribe", "start subscription", "start trial", "confirm purchase", "rent"), "Buy this?", "purchase"),
-        Rule(words("send", "send message", "send now", "send email", "send sms", "reply all"), "Send this?", "send"),
-        Rule(words("delete", "erase", "trash", "delete account", "remove account", "wipe", "empty trash"), "Delete this?", "delete"),
-        Rule(words("call", "dial", "video call", "voice call", "call back"), "Place this call?", "call"),
-        Rule(words("transfer", "wire", "withdraw"), "Transfer this?", "transfer"),
-        Rule(words("post", "publish", "tweet", "share publicly", "go live"), "Post this?", "post"),
-        Rule(
-            Regex(
-                "\\b(factory\\s+reset|change\\s+password|set\\s+password|reset\\s+password|screen\\s+lock|encryption|disable\\s+security|remove\\s+lock|turn\\s+off\\s+find\\s+my)\\b",
-                RegexOption.IGNORE_CASE,
-            ),
-            "Change security settings?",
-            "security",
-        ),
-    )
-
-    private val confirmWords = words("confirm", "continue", "next", "submit", "approve", "authori[sz]e", "ok", "done", "agree", "accept")
-
-    private val amount = Regex("([$€£¥₹]\\s?\\d)|(\\d[\\d,.]*\\s?(usd|eur|gbp|dollars?|euros?))", RegexOption.IGNORE_CASE)
-
     /** Nase's own package, so its own UI can be told apart from the apps it drives. */
     private const val NASE_PACKAGE = "app.nase.companion"
 
@@ -71,12 +45,14 @@ object SafetyPolicy {
         if (target.isPassword) {
             return Verdict.Confirm("Tap the password field? Nase still won't read or type into it.", "password_field")
         }
+        val op = SafetyTable.forOp("tap")
+        if (op.confirm) return Verdict.Confirm("Tap this?", op.reason)
         val label = target.label.trim()
         val money = MoneyScreens.matches(target)
         if (label.isEmpty()) {
             return if (money) moneyTap(target) else Verdict.Allow
         }
-        val rule = rules.firstOrNull { it.pattern.containsMatchIn(label) }
+        val rule = SafetyTable.labelRuleFor("tap", label)
         if (rule != null) {
             // Nase's own Ask "Send" arrow isn't a message leaving the phone, so it
             // doesn't get the Send gate. Every other app's Send still asks.
@@ -88,10 +64,10 @@ object SafetyPolicy {
             }
             return Verdict.Confirm(prompt, rule.reason)
         }
-        if (money && (confirmWords.containsMatchIn(label) || amount.containsMatchIn(label))) {
+        if (money && (SafetyTable.confirmWords.containsMatchIn(label) || SafetyTable.amount.containsMatchIn(label))) {
             return Verdict.Confirm(where("Confirm this in", target) ?: "Confirm this payment?", "payment_app")
         }
-        if (amount.containsMatchIn(label) && confirmWords.containsMatchIn(label)) {
+        if (SafetyTable.amount.containsMatchIn(label) && SafetyTable.confirmWords.containsMatchIn(label)) {
             return Verdict.Confirm("Confirm ${amountIn(label) ?: "this amount"}?", "payment")
         }
         if (money) return moneyTap(target)
@@ -107,12 +83,17 @@ object SafetyPolicy {
     }
 
     fun forOpenApp(packageName: String, label: String = packageName): Verdict {
-        val rule = rules.firstOrNull { it.reason == "security" && it.pattern.containsMatchIn(label) }
+        val op = SafetyTable.forOp("open_app")
+        if (op.confirm) return Verdict.Confirm("Open this app?", op.reason)
+        val rule = SafetyTable.labelRuleFor("open_app", label)
         return if (rule != null) Verdict.Confirm(rule.prompt, rule.reason) else Verdict.Allow
     }
 
-    fun forType(passwordFocused: Boolean): Verdict =
-        if (passwordFocused) Verdict.Block("password_field") else Verdict.Allow
+    fun forType(passwordFocused: Boolean): Verdict {
+        if (passwordFocused) return Verdict.Block("password_field")
+        val op = SafetyTable.forOp("type")
+        return if (op.confirm) Verdict.Confirm("Type this?", op.reason) else Verdict.Allow
+    }
 
     private fun where(prefix: String, target: TapTarget): String? =
         target.appLabel?.takeIf { it.isNotBlank() }?.let { "$prefix $it?" }

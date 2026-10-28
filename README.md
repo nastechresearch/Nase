@@ -173,6 +173,10 @@ npm run pair -- --relay https://relay.nase.karlmagendavid.com
 
 Relay environment is documented in [`relay/.env.example`](relay/.env.example). What changed in each release is in [CHANGELOG.md](CHANGELOG.md).
 
+## Support
+
+Where to file what, what the labels mean, and what to include are in [docs/support.md](docs/support.md). Bugs and feature requests go to the [issue tracker](https://github.com/nastechresearch/Nase/issues). Do not paste passwords, API keys, pairing links, or safety codes into an issue.
+
 ## License
 
 [MIT](LICENSE). Copyright (c) 2026 Karl Magen David.

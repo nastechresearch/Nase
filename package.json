@@ -17,6 +17,10 @@
     "pair": "npm run pair -w @nase/client --",
     "listen": "npm run listen -w @nase/client --",
     "mcp": "npm run start -w nase-mcp --",
-    "typecheck": "tsc -p tsconfig.json"
+    "typecheck": "tsc -p tsconfig.json",
+    "describe": "node tools/describe/src/generate.mjs"
+  },
+  "devDependencies": {
+    "yaml": "^2.9.1"
   }
 }

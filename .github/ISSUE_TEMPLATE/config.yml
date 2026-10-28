@@ -1,0 +1,10 @@
+# Issue chooser for the Nase repository.
+# Links point at files that exist on the default branch (main).
+blank_issues_enabled: false
+contact_links:
+  - name: Support and triage guide
+    url: https://github.com/nastechresearch/Nase/blob/main/docs/support.md
+    about: Where to file what, what the labels mean, and what a useful report includes.
+  - name: Install, pairing, and MCP setup
+    url: https://github.com/nastechresearch/Nase/blob/main/README.md
+    about: Read this before filing a setup report. It covers the three ways to connect a brain.

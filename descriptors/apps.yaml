@@ -1,0 +1,121 @@
+# Seed catalogue for on-device app resolution.
+#
+# Grounded in this repo, not guessed:
+#   package ids  -> android/app/src/main/java/app/nase/companion/ui/Models.kt (SUGGESTIONS)
+#   hiddenDisplay-> docs/hidden-display-apps.md, "Matrix by category"
+#
+# This file is only a SEED. Existence is decided on the device by PackageManager,
+# and hiddenDisplay is a default expectation that Nase re-verifies at runtime
+# (see "Nase never guesses" in docs/hidden-display-apps.md). An app that is not
+# listed here still opens when installed; listing it only adds aliases.
+#
+# Compiles to android/app/src/main/assets/apps_seed.json via `npm run describe`.
+
+schema: 1
+
+apps:
+  # --- rides & travel: payment on file, maps may render empty off-screen ---
+  - package: com.ubercab
+    label: Uber
+    aliases: [uber, rides, taxi]
+    hiddenDisplay: bounces
+    safetyTags: [payment]
+  - package: me.lyft.android
+    label: Lyft
+    aliases: [lyft, rides]
+    hiddenDisplay: bounces
+    safetyTags: [payment]
+  - package: com.airbnb.android
+    label: Airbnb
+    aliases: [airbnb, stay, rental]
+    hiddenDisplay: bounces
+    safetyTags: [payment]
+  - package: com.hoteltonight.android.prod
+    label: HotelTonight
+    aliases: [hotel tonight, hoteltonight, hotel]
+    hiddenDisplay: bounces
+    safetyTags: [payment]
+  - package: com.united.mobile.android
+    label: United
+    aliases: [united, flight, airline]
+    hiddenDisplay: bounces
+    safetyTags: [payment]
+  - package: com.teslamotors.tesla
+    label: Tesla
+    aliases: [tesla, my car, charging]
+    hiddenDisplay: bounces
+  - package: com.google.android.apps.maps
+    label: Google Maps
+    aliases: [maps, google maps, navigation]
+    hiddenDisplay: bounces
+
+  # --- shopping & food: payment on file ---
+  - package: com.amazon.mShop.android.shopping
+    label: Amazon
+    aliases: [amazon, shopping]
+    hiddenDisplay: bounces
+    safetyTags: [payment]
+  - package: com.target.ui
+    label: Target
+    aliases: [target, shopping]
+    hiddenDisplay: bounces
+    safetyTags: [payment]
+  - package: com.dd.doordash
+    label: DoorDash
+    aliases: [doordash, food delivery]
+    hiddenDisplay: bounces
+    safetyTags: [payment]
+  - package: com.instacart.client
+    label: Instacart
+    aliases: [instacart, groceries, grocery delivery]
+    hiddenDisplay: bounces
+    safetyTags: [payment]
+  - package: com.postmates.android
+    label: Postmates
+    aliases: [postmates, food delivery]
+    hiddenDisplay: bounces
+    safetyTags: [payment]
+  - package: com.resy.android
+    label: Resy
+    aliases: [resy, reservation, book a table]
+    hiddenDisplay: bounces
+    safetyTags: [payment]
+  - package: com.yelp.android
+    label: Yelp
+    aliases: [yelp, reviews, restaurant]
+    hiddenDisplay: bounces
+  - package: com.zillow.android.zillowmap
+    label: Zillow
+    aliases: [zillow, real estate, rentals]
+    hiddenDisplay: bounces
+
+  # --- media: DRM surfaces may stay black on a virtual display ---
+  - package: com.spotify.music
+    label: Spotify
+    aliases: [spotify, music, podcast]
+    hiddenDisplay: bounces
+  - package: com.google.android.youtube
+    label: YouTube
+    aliases: [youtube, video]
+    hiddenDisplay: bounces
+    safetyTags: [drm]
+
+  # --- google apps ---
+  - package: com.google.android.apps.photos
+    label: Google Photos
+    aliases: [photos, google photos, album]
+    hiddenDisplay: bounces
+  - package: com.google.android.gm
+    label: Gmail
+    aliases: [gmail, email, mail]
+    hiddenDisplay: bounces
+
+  # --- platform: always present, useful for setup and smoke tests ---
+  - package: com.android.settings
+    label: Settings
+    aliases: [settings, phone settings]
+    hiddenDisplay: bounces
+  - package: com.android.calculator2
+    label: Calculator
+    aliases: [calculator, calc]
+    hiddenDisplay: bounces

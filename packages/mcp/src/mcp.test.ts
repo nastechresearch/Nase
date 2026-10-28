@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { Client } from "@modelcontextprotocol/client";
 import { InMemoryTransport } from "@modelcontextprotocol/server";
 import type { CallToolResult } from "@modelcontextprotocol/server";
-import { parsePairingInput } from "@nase/shared";
+import { MCP_TOOLS, parsePairingInput } from "@nase/shared";
 import { MockPhone } from "@nase/client/mock-phone";
 import { NaseSession } from "@nase/client";
 import { createRelay, type StartedRelay } from "../../../relay/src/server.ts";
@@ -94,30 +94,9 @@ describe("nase mcp", () => {
   it("lists the phone tools", async () => {
     const caller = await startMcp();
     const listed = await caller.listTools();
-    expect(listed.tools.map((tool) => tool.name).sort()).toEqual(
-      [
-        "ask_user",
-        "confirm",
-        "disconnect",
-        "done",
-        "drag",
-        "key",
-        "long_press",
-        "open_app",
-        "open_settings",
-        "pair",
-        "pinch",
-        "screenshot",
-        "speak",
-        "status",
-        "swipe",
-        "tap",
-        "type",
-        "ui_tree",
-        "wait_for_request",
-        "wait_idle",
-      ].sort(),
-    );
+    // Expected names come from descriptors/capabilities.yaml. A tool added to
+    // server.ts without the descriptor (or vice versa) fails here.
+    expect(listed.tools.map((tool) => tool.name).sort()).toEqual([...MCP_TOOLS].sort());
   });
 
   it("pairs a mock phone and runs the command set", async () => {
