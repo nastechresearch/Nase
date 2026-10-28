@@ -36,6 +36,7 @@ ops:
     summary: Wait for the screen to stop changing instead of guessing.
     wire: wait_idle
     mcp: wait_idle
+    kotlin: wait_idle
     cli: [wait_idle, wait]
     params:
       - { name: timeoutMs, type: number, required: false }

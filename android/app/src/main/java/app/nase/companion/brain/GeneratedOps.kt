@@ -47,5 +47,6 @@ object GeneratedOps {
         "swipe",
         "tap",
         "type",
+        "wait_idle",
         )
 }

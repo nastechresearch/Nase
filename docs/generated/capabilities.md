@@ -6,7 +6,7 @@
 | --- | --- | --- | --- | --- | --- |
 | `screenshot` | screenshot | screenshot | — | screenshot | Capture the screen as a JPEG and return its size. |
 | `ui_tree` | ui_tree | ui_tree | — | ui_tree, tree | Read the accessibility tree of the current screen. |
-| `wait_idle` | wait_idle | wait_idle | — | wait_idle, wait | Wait for the screen to stop changing instead of guessing. |
+| `wait_idle` | wait_idle | wait_idle | wait_idle | wait_idle, wait | Wait for the screen to stop changing instead of guessing. |
 | `tap` | tap | tap | tap | tap | Tap at screen coordinates, preferring a labelled target. |
 | `swipe` | swipe | swipe | swipe | swipe | Swipe between two points, optionally with a duration. |
 | `long_press` | long_press | long_press | long_press | long_press, longpress | Press and hold a point for a duration. |

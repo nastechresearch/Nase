@@ -54,6 +54,7 @@ export const OPS: readonly OpSpec[] = [
     summary: "Wait for the screen to stop changing instead of guessing.",
     wire: "wait_idle",
     mcp: "wait_idle",
+    kotlin: "wait_idle",
     cli: ["wait_idle","wait"],
   },
   {
@@ -264,6 +265,7 @@ export const KOTLIN_TOOLS: readonly string[] = [
   "swipe",
   "tap",
   "type",
+  "wait_idle",
 ];
 
 export const MCP_TOOLS: readonly string[] = [
