@@ -22,6 +22,7 @@ import androidx.core.app.ServiceCompat
 import app.nase.companion.BuildConfig
 import app.nase.companion.MainActivity
 import app.nase.companion.R
+import app.nase.companion.a11y.AccessibilityStatus
 import app.nase.companion.a11y.NaseAccessibilityService
 import app.nase.companion.brain.GrokBot
 import app.nase.companion.brain.KeystoreSecretBox
@@ -33,18 +34,21 @@ import app.nase.companion.display.BackgroundHost
 import app.nase.companion.display.DisplayPolicy
 import app.nase.companion.display.ScreenGuard
 import app.nase.companion.display.ScreenRouter
+import app.nase.companion.display.ShizukuBridge
 import app.nase.companion.display.Watch
 import app.nase.companion.input.ImeStatus
 import app.nase.companion.net.CleartextPolicy
 import app.nase.companion.net.RelayClient
 import app.nase.companion.proto.AppMessage
 import app.nase.companion.proto.PairingPayload
+import app.nase.companion.recap.OpMetrics
 import app.nase.companion.tasks.StepKind
 import app.nase.companion.tasks.StopState
 import app.nase.companion.tasks.TaskRuntime
 import app.nase.companion.tasks.TaskState
 import app.nase.companion.voice.LockState
 import app.nase.companion.voice.OwnerRequest
+import app.nase.companion.voice.PhoneOps
 import app.nase.companion.voice.SafetyPolicy
 import app.nase.companion.voice.StandingHandoff
 import app.nase.companion.voice.Verdict
@@ -474,16 +478,17 @@ class NaseSessionService : Service(), RelayClient.Listener {
                         }
                     }
                     val acted = ScreenRouter.tap(this, x, y, params, watch)
-                    append("tap", "${acted.fields["x"]},${acted.fields["y"]} ${acted.error ?: ""}".trim(), acted.ok)
+                    val explained = PhoneOps.withExplanation(acted, PhoneOps.explain("tap", target.label, x, y, acted))
+                    append("tap", "${explained.fields["x"]},${explained.fields["y"]} ${explained.error ?: ""}".trim(), explained.ok)
                     val label = if (target.isPassword) "the password field" else target.label.take(60)
                     VoiceController.onRemoteStep(
                         this,
                         StepKind.Tap,
-                        stepLabel(if (label.isNotBlank()) "Tapped “$label”" else "Tapped the screen", acted),
-                        acted.ok,
+                        stepLabel(if (label.isNotBlank()) "Tapped “$label”" else "Tapped the screen", explained),
+                        explained.ok,
                     )
-                    finishDeferral(acted)
-                    cmdOf(acted)
+                    finishDeferral(explained)
+                    cmdOf(explained)
                 }
                 "swipe" -> {
                     val acted = ScreenRouter.swipe(
@@ -506,16 +511,17 @@ class NaseSessionService : Service(), RelayClient.Listener {
                     val y = params.getDouble("y")
                     val target = ScreenRouter.tapTarget(this, x, y, params)
                     val acted = ScreenRouter.longPress(this, x, y, params.optLong("durationMs", 600), params, watch)
-                    append("long_press", "${acted.fields["x"]},${acted.fields["y"]} ${acted.error ?: ""}".trim(), acted.ok)
+                    val explained = PhoneOps.withExplanation(acted, PhoneOps.explain("long_press", target.label, x, y, acted))
+                    append("long_press", "${explained.fields["x"]},${explained.fields["y"]} ${explained.error ?: ""}".trim(), explained.ok)
                     val label = if (target.isPassword) "" else target.label.take(60)
                     VoiceController.onRemoteStep(
                         this,
                         StepKind.Tap,
-                        stepLabel(if (label.isNotBlank()) "Held “$label”" else "Pressed and held", acted),
-                        acted.ok,
+                        stepLabel(if (label.isNotBlank()) "Held “$label”" else "Pressed and held", explained),
+                        explained.ok,
                     )
-                    finishDeferral(acted)
-                    cmdOf(acted)
+                    finishDeferral(explained)
+                    cmdOf(explained)
                 }
                 "drag" -> {
                     val acted = ScreenRouter.drag(
@@ -813,7 +819,26 @@ class NaseSessionService : Service(), RelayClient.Listener {
                     .put("naseActive", ime.naseActive)
                     .put("naseUsable", ime.naseUsable),
             )
+            .put("health", health())
     }
+
+    /**
+     * Additive status facts: what the session can physically do right now and
+     * the bounded per-op counters. New keys only — every older key keeps its
+     * shape and meaning.
+     */
+    private fun health(): JSONObject = JSONObject()
+        .put("accessibility", AccessibilityStatus.enabled(this))
+        .put("accessibilityConnected", NaseAccessibilityService.instance != null)
+        .put("display", if (DisplayPolicy.choiceFrom(this, null) == DisplayPolicy.Choice.BACKGROUND) "background" else "main")
+        .put(
+            "shizuku",
+            JSONObject()
+                .put("installed", ShizukuBridge.installed(this))
+                .put("running", ShizukuBridge.running())
+                .put("granted", ShizukuBridge.granted()),
+        )
+        .put("ops", opsJson(OpMetrics.snapshot()))
 
     private fun cmdOf(acted: ActionResult): Cmd {
         val body = acted.json()
@@ -1052,4 +1077,28 @@ class NaseSessionService : Service(), RelayClient.Listener {
         fun resumable(context: Context): Boolean =
             runCatching { vaultFor(context).load()?.resumable(System.currentTimeMillis()) == true }.getOrDefault(false)
     }
+}
+
+/**
+ * Wire form of an [OpMetrics] snapshot. Kept top-level so the payload shape is
+ * testable without an Android service. [OpMetrics.Snapshot.window] stays with
+ * the rows it describes.
+ */
+internal fun opsJson(snapshot: OpMetrics.Snapshot): JSONObject {
+    val rows = JSONObject()
+    for ((name, stats) in snapshot.ops) {
+        rows.put(
+            name,
+            JSONObject()
+                .put("count", stats.count)
+                .put("ok", stats.ok)
+                .put("failed", stats.failed)
+                .put("minMs", stats.minMs)
+                .put("medianMs", stats.medianMs)
+                .put("maxMs", stats.maxMs)
+                .put("successRate", stats.successRate)
+                .put("recent", JSONArray(stats.recent)),
+        )
+    }
+    return JSONObject().put("window", snapshot.window).put("ops", rows)
 }
