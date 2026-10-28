@@ -11,6 +11,7 @@ import app.nase.companion.a11y.TextEntry
 import app.nase.companion.a11y.TypeMode
 import app.nase.companion.intent.ImeSettings
 import app.nase.companion.intent.SettingsIntents
+import org.json.JSONArray
 import org.json.JSONObject
 
 data class ActionResult(
@@ -286,18 +287,35 @@ object ScreenRouter {
         watch: Watch = Watch.None,
     ): ActionResult {
         return work(context, "Opening an app") {
+            val resolution = AppRegistry.device(context).resolve(packageName)
+            val targetPackage = when (resolution) {
+                is AppResolution.Resolved -> resolution.match.packageName
+                is AppResolution.Ambiguous -> return@work ActionResult(
+                    false,
+                    "ambiguous_app",
+                    targetFor(context, params),
+                    mapOf("query" to packageName, "candidates" to candidatesField(resolution.candidates)),
+                )
+                // Unresolved names fall through exactly as before: PackageManager
+                // still gets the final say on whether a raw package can open.
+                is AppResolution.Unknown -> packageName
+            }
             val choice = DisplayPolicy.choiceFrom(context, params)
             val opened = BackgroundHost.open(
                 context,
-                packageName,
+                targetPackage,
                 choice,
                 consent,
                 explicitBackground = DisplayPolicy.requestedBackground(params),
                 beforeMain = { ScreenGuard.awaitCallScreen(context, watch) },
             )
-            if (opened.ok && opened.target.displayId == Display.DEFAULT_DISPLAY) expected = packageName
-            val fields = mutableMapOf<String, Any?>("packageName" to packageName, "app" to BackgroundHost.appLabel(context, packageName))
+            if (opened.ok && opened.target.displayId == Display.DEFAULT_DISPLAY) expected = targetPackage
+            val fields = mutableMapOf<String, Any?>("packageName" to targetPackage, "app" to BackgroundHost.appLabel(context, targetPackage))
             if (opened.deferredMs > 0) fields["deferredMs"] = opened.deferredMs
+            if (!opened.ok && resolution is AppResolution.Unknown) {
+                fields["query"] = packageName
+                if (resolution.candidates.isNotEmpty()) fields["candidates"] = candidatesField(resolution.candidates)
+            }
             ActionResult(opened.ok, opened.error, opened.target, fields)
         }
     }
@@ -501,6 +519,20 @@ object ScreenRouter {
 
     private fun axis(value: Double, screen: Int): Float {
         return if (value in 0.0..1.0) (value * screen).toFloat() else value.toFloat()
+    }
+
+    /** Up to five named alternatives. Data only; opening one still runs the full guard path. */
+    private fun candidatesField(candidates: List<AppMatch>): JSONArray {
+        val rows = JSONArray()
+        for (candidate in candidates) {
+            rows.put(
+                JSONObject()
+                    .put("package", candidate.packageName)
+                    .put("label", candidate.label)
+                    .put("source", candidate.source.wire),
+            )
+        }
+        return rows
     }
 
     private fun work(context: Context, label: String, block: () -> ActionResult): ActionResult {
