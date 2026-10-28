@@ -201,6 +201,9 @@ export class MockPhone {
       case "done":
         this.finished.push({ ref: p.ref, text: p.text ?? "", ok: p.ok !== false });
         return { ok: true, result: { done: true } };
+      case "cancel":
+        // Sent as an event when a request times out; the ref is in result, not params.
+        return { ok: true, result: { cancelled: true, ref: msg.result?.ref } };
       default:
         return { ok: false, error: `unknown_op:${op}` };
     }

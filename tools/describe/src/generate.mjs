@@ -5,7 +5,7 @@
 //
 // Generated files are NO-EDIT: edit the descriptor instead, then rerun.
 
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parse } from "yaml";
@@ -237,6 +237,18 @@ ${appRows}
 // --- build ---
 const capabilities = readDescriptor("capabilities.yaml");
 const appsDoc = readDescriptor("apps.yaml");
+
+// Every descriptor must parse, and the metadata ones must keep the headings the
+// pipeline and docs rely on. capabilities/apps get full validation below.
+const REQUIRED_TOP_LEVEL = { "brain.yaml": ["providers"], "support.yaml": ["project"] };
+for (const file of readdirSync(join(ROOT, "descriptors")).filter((f) => f.endsWith(".yaml")).sort()) {
+  if (file === "capabilities.yaml" || file === "apps.yaml") continue;
+  const doc = readDescriptor(file);
+  if (!doc) continue;
+  for (const key of REQUIRED_TOP_LEVEL[file] ?? []) {
+    if (doc[key] === undefined) fail(`descriptors/${file}`, `missing top-level \`${key}:\``);
+  }
+}
 const ops = capabilities ? validateCapabilities(capabilities) : [];
 const apps = appsDoc ? validateApps(appsDoc) : [];
 

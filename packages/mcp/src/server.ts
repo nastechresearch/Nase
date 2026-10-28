@@ -6,6 +6,7 @@ import { McpServer, type ServerContext } from "@modelcontextprotocol/server";
 import { z } from "zod";
 
 import type { CommandResult, ProgressEvent, RequestOptions } from "@nase/client";
+import { MCP_TOOLS } from "@nase/shared";
 
 import { PhoneController, endedMessage, type ControllerOptions, type DisplayOpts } from "./controller.ts";
 
@@ -55,7 +56,17 @@ export function createNaseMcp(options: ControllerOptions): NaseMcp {
     { instructions: INSTRUCTIONS },
   );
 
-  server.registerTool(
+  // The registrations below are hand-written, but the inventory is not: record
+  // each name so [assertDescriptorToolSurface] can compare it with MCP_TOOLS,
+  // which is generated from descriptors/capabilities.yaml.
+  const registeredTools: string[] = [];
+  // The cast keeps registerTool's generics for the call sites below.
+  const registerTool = ((name: string, ...rest: unknown[]) => {
+    registeredTools.push(name);
+    return (server.registerTool as (...args: unknown[]) => unknown).call(server, name, ...rest);
+  }) as unknown as typeof server.registerTool;
+
+  registerTool(
     "pair",
     {
       title: "Pair a phone",
@@ -102,7 +113,7 @@ export function createNaseMcp(options: ControllerOptions): NaseMcp {
     },
   );
 
-  server.registerTool(
+  registerTool(
     "status",
     {
       title: "Session status",
@@ -116,7 +127,7 @@ export function createNaseMcp(options: ControllerOptions): NaseMcp {
     },
   );
 
-  server.registerTool(
+  registerTool(
     "screenshot",
     {
       title: "Screenshot",
@@ -151,7 +162,7 @@ export function createNaseMcp(options: ControllerOptions): NaseMcp {
     },
   );
 
-  server.registerTool(
+  registerTool(
     "ui_tree",
     {
       title: "UI tree",
@@ -162,7 +173,7 @@ export function createNaseMcp(options: ControllerOptions): NaseMcp {
     async (args) => textResult(() => controller.uiTree(displayOf(args))),
   );
 
-  server.registerTool(
+  registerTool(
     "wait_idle",
     {
       title: "Wait for the screen to settle",
@@ -177,7 +188,7 @@ export function createNaseMcp(options: ControllerOptions): NaseMcp {
       textResult(() => controller.waitIdle(timeoutMs ?? 4_000, { background, display }, progressOf(ctx))),
   );
 
-  server.registerTool(
+  registerTool(
     "tap",
     {
       title: "Tap",
@@ -192,7 +203,7 @@ export function createNaseMcp(options: ControllerOptions): NaseMcp {
       textResult(() => controller.tap(x, y, { background, display }, progressOf(ctx))),
   );
 
-  server.registerTool(
+  registerTool(
     "swipe",
     {
       title: "Swipe",
@@ -210,7 +221,7 @@ export function createNaseMcp(options: ControllerOptions): NaseMcp {
       textResult(() => controller.swipe(x1, y1, x2, y2, durationMs, { background, display }, progressOf(ctx))),
   );
 
-  server.registerTool(
+  registerTool(
     "long_press",
     {
       title: "Long press",
@@ -227,7 +238,7 @@ export function createNaseMcp(options: ControllerOptions): NaseMcp {
       textResult(() => controller.longPress(x, y, durationMs, { background, display }, progressOf(ctx))),
   );
 
-  server.registerTool(
+  registerTool(
     "drag",
     {
       title: "Drag",
@@ -246,7 +257,7 @@ export function createNaseMcp(options: ControllerOptions): NaseMcp {
       textResult(() => controller.drag(x1, y1, x2, y2, durationMs, { background, display }, progressOf(ctx))),
   );
 
-  server.registerTool(
+  registerTool(
     "pinch",
     {
       title: "Pinch to zoom",
@@ -265,7 +276,7 @@ export function createNaseMcp(options: ControllerOptions): NaseMcp {
       textResult(() => controller.pinch(x, y, fromDistance, toDistance, durationMs, { background, display }, progressOf(ctx))),
   );
 
-  server.registerTool(
+  registerTool(
     "type",
     {
       title: "Type text",
@@ -281,7 +292,7 @@ export function createNaseMcp(options: ControllerOptions): NaseMcp {
       textResult(() => controller.typeText(text, { mode, background, display }, progressOf(ctx))),
   );
 
-  server.registerTool(
+  registerTool(
     "key",
     {
       title: "Press a key",
@@ -296,7 +307,7 @@ export function createNaseMcp(options: ControllerOptions): NaseMcp {
       textResult(() => controller.key(key, { background, display }, progressOf(ctx))),
   );
 
-  server.registerTool(
+  registerTool(
     "open_app",
     {
       title: "Open an app",
@@ -311,7 +322,7 @@ export function createNaseMcp(options: ControllerOptions): NaseMcp {
       textResult(() => controller.openApp(packageName, { background, display }, progressOf(ctx))),
   );
 
-  server.registerTool(
+  registerTool(
     "open_settings",
     {
       title: "Open a settings screen",
@@ -327,7 +338,7 @@ export function createNaseMcp(options: ControllerOptions): NaseMcp {
       textResult(() => controller.openSettings(name, packageName, { background, display }, progressOf(ctx))),
   );
 
-  server.registerTool(
+  registerTool(
     "wait_for_request",
     {
       title: "Wait for the owner's next request",
@@ -341,7 +352,7 @@ export function createNaseMcp(options: ControllerOptions): NaseMcp {
     async ({ timeoutMs }, ctx) => textResult(() => controller.waitForRequest(timeoutMs, ctx.mcpReq.signal)),
   );
 
-  server.registerTool(
+  registerTool(
     "done",
     {
       title: "Finish the owner's request",
@@ -355,7 +366,7 @@ export function createNaseMcp(options: ControllerOptions): NaseMcp {
     async ({ text, ok }) => textResult(() => controller.done(text ?? "", ok ?? true)),
   );
 
-  server.registerTool(
+  registerTool(
     "speak",
     {
       title: "Speak",
@@ -367,7 +378,7 @@ export function createNaseMcp(options: ControllerOptions): NaseMcp {
     async ({ text }) => textResult(() => controller.speak(text)),
   );
 
-  server.registerTool(
+  registerTool(
     "ask_user",
     {
       title: "Ask the owner",
@@ -379,7 +390,7 @@ export function createNaseMcp(options: ControllerOptions): NaseMcp {
     async ({ text }) => textResult(() => controller.askUser(text)),
   );
 
-  server.registerTool(
+  registerTool(
     "confirm",
     {
       title: "Confirm with the owner",
@@ -392,7 +403,7 @@ export function createNaseMcp(options: ControllerOptions): NaseMcp {
     async ({ text }) => textResult(() => controller.confirm(text)),
   );
 
-  server.registerTool(
+  registerTool(
     "disconnect",
     {
       title: "Disconnect",
@@ -402,7 +413,28 @@ export function createNaseMcp(options: ControllerOptions): NaseMcp {
     async () => textResult(() => controller.disconnect()),
   );
 
+  assertDescriptorToolSurface(registeredTools);
   return { server, controller };
+}
+
+/**
+ * Fails at startup when the hand-written registrations drift from the
+ * descriptor. MCP_TOOLS is generated from descriptors/capabilities.yaml: every
+ * op the descriptor advertises on `mcp:` must be registered here, and this
+ * server must not advertise a tool the descriptor does not list.
+ */
+export function assertDescriptorToolSurface(registered: readonly string[]): void {
+  const declared = new Set(MCP_TOOLS);
+  const missing = MCP_TOOLS.filter((name) => !registered.includes(name));
+  const undeclared = registered.filter((name) => !declared.has(name));
+  const duplicated = [...new Set(registered.filter((name, index) => registered.indexOf(name) !== index))];
+  if (missing.length === 0 && undeclared.length === 0 && duplicated.length === 0) return;
+  const drift = [
+    missing.length > 0 ? `missing: ${missing.join(", ")}` : "",
+    undeclared.length > 0 ? `not declared on mcp: ${undeclared.join(", ")}` : "",
+    duplicated.length > 0 ? `registered twice: ${duplicated.join(", ")}` : "",
+  ].filter(Boolean);
+  throw new Error(`MCP tools drifted from descriptors/capabilities.yaml (${drift.join("; ")}).`);
 }
 
 export interface ListeningMcp {

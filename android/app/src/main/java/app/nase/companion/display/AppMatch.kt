@@ -7,7 +7,18 @@ enum class MatchSource(val wire: String) {
     LABEL("label"),
 }
 
-/** One app the registry can name, plus the curated metadata a caller may need. */
+/**
+ * One app the registry can name, plus the curated metadata a caller may need.
+ *
+ * @property hiddenDisplay the seed's hint about this app on the hidden display:
+ *   "trusted", "bounces" or "unknown" (passed through verbatim when the seed uses
+ *   another value). Null means the seed said nothing; callers must not read null
+ *   as "trusted".
+ * @property safetyTags seed-declared concerns such as "payment" or "drm"; empty
+ *   means the seed declared none.
+ * @property deeplinks custom URI schemes the seed declares for this package. They
+ *   are offered as data only; the registry never opens them.
+ */
 data class AppMatch(
     val packageName: String,
     val label: String,

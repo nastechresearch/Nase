@@ -18,6 +18,54 @@ fun interface InstalledApps {
     fun listed(): List<Pair<String, String>>
 }
 
+/**
+ * A bounded, most-recent-first record of the packages the user actually opened.
+ * The registry only reads it to order equally good matches; recording is the
+ * caller's decision after an open succeeds. Implementations must be thread-safe.
+ */
+interface LaunchHistory {
+    /** Recently opened packages, most recent first. Duplicates need not be repeated. */
+    fun recent(): List<String>
+
+    /** Records one successful launch. The default keeps no history at all. */
+    fun record(packageName: String) {}
+
+    companion object {
+        val EMPTY: LaunchHistory = object : LaunchHistory {
+            override fun recent(): List<String> = emptyList()
+        }
+    }
+}
+
+/**
+ * Small process-local MRU store. Bounded, synchronised, no disk, no network and
+ * no analytics. Inject it (or a fake) wherever [AppRegistry] is built.
+ */
+class InMemoryLaunchHistory(private val capacity: Int = DEFAULT_CAPACITY) : LaunchHistory {
+    init {
+        require(capacity > 0) { "capacity must be positive" }
+    }
+
+    private val lock = Any()
+    private val order = ArrayDeque<String>()
+
+    override fun recent(): List<String> = synchronized(lock) { order.toList() }
+
+    override fun record(packageName: String) {
+        val key = packageName.trim()
+        if (key.isEmpty()) return
+        synchronized(lock) {
+            order.remove(key)
+            order.addFirst(key)
+            while (order.size > capacity) order.removeLast()
+        }
+    }
+
+    companion object {
+        const val DEFAULT_CAPACITY = 32
+    }
+}
+
 /** One curated entry from assets/apps_seed.json. Metadata only: never proof that an app exists. */
 data class SeedApp(
     val packageName: String,
@@ -42,12 +90,37 @@ data class Seed(val apps: List<SeedApp>) {
  * Curated metadata can rank a result, but only PackageManager decides that an app
  * exists. Resolution returns data; every open still goes through the normal
  * consent, display and call-screen guards.
+ *
+ * The merged PackageManager+seed index is cached until [invalidate] is called, so
+ * installs and removals stay explicit rather than being picked up by a timer.
  */
 class AppRegistry(
     private val installed: InstalledApps,
     private val seed: Seed = Seed.EMPTY,
+    private val history: LaunchHistory = LaunchHistory.EMPTY,
 ) {
     private val seedByPackage: Map<String, SeedApp> = seed.byPackage
+    private val indexLock = Any()
+
+    @Volatile
+    private var cachedIndex: List<IndexedApp>? = null
+
+    /**
+     * Drops the merged index. Call after ACTION_PACKAGE_ADDED, ACTION_PACKAGE_REMOVED,
+     * ACTION_PACKAGE_REPLACED or ACTION_PACKAGE_CHANGED, or when the launcher list
+     * may otherwise have changed. No timer and no background work.
+     */
+    fun invalidate() {
+        synchronized(indexLock) { cachedIndex = null }
+    }
+
+    /**
+     * Records a successful open so it outranks other equally good matches next time.
+     * Data only: this never authorizes anything and never opens an app.
+     */
+    fun recordLaunch(packageName: String) {
+        history.record(packageName)
+    }
 
     fun resolve(query: String): AppResolution {
         val said = Forms.of(query)
@@ -76,10 +149,14 @@ class AppRegistry(
 
         val best = ranked.minOfOrNull { it.rank }
         if (best != null) {
-            val tied = ranked.filter { it.rank == best }.sortedWith(CANDIDATE_ORDER)
+            val tied = ranked
+                .filter { it.rank == best }
+                .sortedWith(candidateOrder(recencyRanks()))
             if (tied.size == 1) {
                 return AppResolution.Resolved(query, tied.first().app.match(sourceFor(best)))
             }
+            // Several equally good matches stay ambiguous: recency orders the list
+            // (most recently opened first) but never turns a tie into a guess.
             return AppResolution.Ambiguous(
                 query,
                 tied.take(MAX_CANDIDATES).map { it.app.match(sourceFor(it.rank)) },
@@ -101,6 +178,16 @@ class AppRegistry(
     }
 
     private fun indexed(): List<IndexedApp> {
+        cachedIndex?.let { return it }
+        synchronized(indexLock) {
+            cachedIndex?.let { return it }
+            val built = buildIndex()
+            cachedIndex = built
+            return built
+        }
+    }
+
+    private fun buildIndex(): List<IndexedApp> {
         val out = ArrayList<IndexedApp>()
         val seen = HashSet<String>()
         for ((rawPackage, rawLabel) in installed.listed()) {
@@ -120,6 +207,7 @@ class AppRegistry(
                 packageName = packageName,
                 label = label,
                 aliases = aliases,
+                // Metadata is exposed only for apps PackageManager actually listed.
                 deeplinks = meta?.deeplinks ?: emptyList(),
                 hiddenDisplay = meta?.hiddenDisplay,
                 safetyTags = meta?.safetyTags ?: emptyList(),
@@ -130,6 +218,27 @@ class AppRegistry(
         }
         return out
     }
+
+    /** Package name -> 0-based recency rank, most recent first. Unknown packages fall last. */
+    private fun recencyRanks(): Map<String, Int> {
+        val recent = history.recent()
+        if (recent.isEmpty()) return emptyMap()
+        val ranks = HashMap<String, Int>(recent.size * 2)
+        var next = 0
+        for (raw in recent) {
+            val packageName = raw.trim()
+            if (packageName.isEmpty() || ranks.containsKey(packageName)) continue
+            ranks[packageName] = next++
+        }
+        return ranks
+    }
+
+    private fun candidateOrder(recency: Map<String, Int>): Comparator<Ranked> =
+        compareBy<Ranked> { it.rank }
+            .thenByDescending { it.exactLabel }
+            .thenBy { recency[it.app.packageName] ?: Int.MAX_VALUE }
+            .thenBy { it.app.label.lowercase(Locale.ROOT) }
+            .thenBy { it.app.packageName }
 
     private fun sourceFor(rank: Int): MatchSource = when (rank) {
         RANK_PACKAGE -> MatchSource.EXACT_PACKAGE
@@ -181,15 +290,20 @@ class AppRegistry(
             label = label,
             source = source,
             hiddenDisplay = hiddenDisplay,
-            safetyTags = safetyTags,
-            aliases = aliases,
-            deeplinks = deeplinks,
+            // Copies keep callers from mutating the cached index.
+            safetyTags = safetyTags.toList(),
+            aliases = aliases.toList(),
+            deeplinks = deeplinks.toList(),
         )
     }
 
     private data class Ranked(val app: IndexedApp, val rank: Int, val exactLabel: Boolean)
 
-    /** Lowercase, accents folded, punctuation and spacing collapsed (and a space-free twin). */
+    /**
+     * Lowercase, accents folded, Turkish dotless i folded to i, punctuation and
+     * spacing collapsed (and a space-free twin). Emoji and other symbols act as
+     * separators, so "Notes 📝" still matches "notes".
+     */
     private data class Forms(val spaced: String, val compact: String) {
         fun exact(other: Forms): Boolean = spaced == other.spaced || compact == other.compact
         fun startsWith(other: Forms): Boolean = spaced.startsWith(other.spaced) || compact.startsWith(other.compact)
@@ -198,10 +312,31 @@ class AppRegistry(
         companion object {
             private val MARKS = Regex("\\p{M}+")
 
+            /**
+             * Latin letters that NFD does not decompose into base + mark.
+             * '\u0131' is the Turkish dotless i, folded to plain i so "ışık",
+             * "isik" and "ISIK" all meet; Locale.ROOT keeps "I" -> "i" instead
+             * of the Turkish "ı".
+             */
+            private val FOLDS: Map<Char, String> = mapOf(
+                '\u0131' to "i",
+                '\u00f8' to "o",
+                '\u0142' to "l",
+                '\u0111' to "d",
+                '\u00f0' to "d",
+                '\u00df' to "ss",
+                '\u00e6' to "ae",
+                '\u0153' to "oe",
+                '\u00fe' to "th",
+            )
+
             fun of(text: String): Forms {
-                val folded = Normalizer.normalize(text, Normalizer.Form.NFD)
+                val lowered = Normalizer.normalize(text, Normalizer.Form.NFD)
                     .replace(MARKS, "")
                     .lowercase(Locale.ROOT)
+                val folded = buildString(lowered.length) {
+                    for (ch in lowered) append(FOLDS[ch] ?: ch.toString())
+                }
                 val spaced = buildString(folded.length) {
                     var gap = false
                     for (ch in folded) {
@@ -231,22 +366,44 @@ class AppRegistry(
         private const val RANK_LABEL = 3
         private val PACKAGE_NAME = Regex("[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)+")
 
-        private val CANDIDATE_ORDER: Comparator<Ranked> =
-            compareBy<Ranked> { it.rank }
-                .thenByDescending { it.exactLabel }
-                .thenBy { it.app.label.lowercase(Locale.ROOT) }
-                .thenBy { it.app.packageName }
-
         @Volatile
         private var cachedSeed: Seed? = null
         private val seedWarned = AtomicBoolean(false)
 
-        fun device(context: Context): AppRegistry =
-            AppRegistry(PackageManagerApps(context.applicationContext), seedFor(context))
+        @Volatile
+        private var deviceRegistry: AppRegistry? = null
+        private val deviceHistory = InMemoryLaunchHistory()
+
+        fun device(context: Context): AppRegistry {
+            deviceRegistry?.let { return it }
+            synchronized(this) {
+                deviceRegistry?.let { return it }
+                val created = AppRegistry(
+                    PackageManagerApps(context.applicationContext),
+                    seedFor(context),
+                    deviceHistory,
+                )
+                deviceRegistry = created
+                return created
+            }
+        }
+
+        /**
+         * Explicit refresh hook for the service's package broadcast receiver.
+         * Call from ACTION_PACKAGE_ADDED / REMOVED / REPLACED / CHANGED. The shared
+         * device registry is the same instance every caller gets from [device], so
+         * this invalidates the index that the next resolve will use.
+         */
+        fun invalidateDevice() {
+            deviceRegistry?.invalidate()
+        }
 
         /** Pure entry point for JVM tests: no Context, no assets. */
-        fun from(installed: InstalledApps, seedJson: String? = null): AppRegistry =
-            AppRegistry(installed, parseSeed(seedJson) ?: Seed.EMPTY)
+        fun from(
+            installed: InstalledApps,
+            seedJson: String? = null,
+            history: LaunchHistory = LaunchHistory.EMPTY,
+        ): AppRegistry = AppRegistry(installed, parseSeed(seedJson) ?: Seed.EMPTY, history)
 
         /** Null means missing, malformed, or a schema newer than this build understands. */
         fun parseSeed(json: String?): Seed? {

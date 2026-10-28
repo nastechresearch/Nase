@@ -1,0 +1,26 @@
+name: security
+
+# Separate from ci on purpose: an advisory in a transitive dependency should
+# inform, not block every unrelated pull request. Scheduled and manual only.
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: No credential-shaped strings committed
+        run: npm run describe:secrets
+      - name: Dependency audit (production dependencies)
+        run: npm audit --omit=dev --audit-level=high

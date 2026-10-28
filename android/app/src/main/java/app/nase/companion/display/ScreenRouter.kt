@@ -310,8 +310,16 @@ object ScreenRouter {
                 beforeMain = { ScreenGuard.awaitCallScreen(context, watch) },
             )
             if (opened.ok && opened.target.displayId == Display.DEFAULT_DISPLAY) expected = targetPackage
+            if (opened.ok) AppRegistry.device(context).recordLaunch(targetPackage)
             val fields = mutableMapOf<String, Any?>("packageName" to targetPackage, "app" to BackgroundHost.appLabel(context, targetPackage))
             if (opened.deferredMs > 0) fields["deferredMs"] = opened.deferredMs
+            if (resolution is AppResolution.Resolved) {
+                val match = resolution.match
+                fields["matched"] = match.source.wire
+                match.hiddenDisplay?.let { fields["hiddenDisplay"] = it }
+                if (match.safetyTags.isNotEmpty()) fields["safetyTags"] = match.safetyTags
+                if (match.deeplinks.isNotEmpty()) fields["deeplinks"] = match.deeplinks
+            }
             if (!opened.ok && resolution is AppResolution.Unknown) {
                 fields["query"] = packageName
                 if (resolution.candidates.isNotEmpty()) fields["candidates"] = candidatesField(resolution.candidates)
@@ -529,7 +537,10 @@ object ScreenRouter {
                 JSONObject()
                     .put("package", candidate.packageName)
                     .put("label", candidate.label)
-                    .put("source", candidate.source.wire),
+                    .put("source", candidate.source.wire)
+                    .put("hiddenDisplay", candidate.hiddenDisplay ?: JSONObject.NULL)
+                    .put("safetyTags", JSONArray(candidate.safetyTags))
+                    .put("deeplinks", JSONArray(candidate.deeplinks)),
             )
         }
         return rows

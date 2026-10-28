@@ -1,0 +1,44 @@
+name: descriptors
+
+# Runs on any descriptor or generator change, so a stale generated file or a
+# malformed YAML fails before it reaches the branch that consumes it.
+on:
+  push:
+    paths:
+      - "descriptors/**"
+      - "tools/describe/**"
+      - "shared/src/generated/**"
+      - "android/app/src/main/assets/apps_seed.json"
+      - "docs/generated/**"
+      - "package.json"
+      - "package-lock.json"
+  pull_request:
+    paths:
+      - "descriptors/**"
+      - "tools/describe/**"
+      - "shared/src/generated/**"
+      - "android/app/src/main/assets/apps_seed.json"
+      - "docs/generated/**"
+      - "package.json"
+      - "package-lock.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Validates every descriptor (not only the two that generate output) and
+      # proves the committed artifacts match the descriptors.
+      - name: Descriptors valid and generated output current
+        run: npm run describe -- --check
+      - name: No credential-shaped strings committed
+        run: npm run describe:secrets

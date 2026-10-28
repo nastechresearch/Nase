@@ -1,0 +1,49 @@
+name: release
+
+# Artifacts only. Nothing is signed and nothing is published: the unsigned APK
+# and the node test result are uploaded for a human to pick up. Signing
+# credentials live in the release-signing environment and are never touched here.
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  artifacts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
+      - name: Install SDK 36
+        run: |
+          set +o pipefail
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platforms;android-36" "build-tools;36.0.0"
+      - run: npm ci
+      - run: npm run describe -- --check
+      - run: npm test
+      - name: Build debug and unsigned release APKs
+        working-directory: android
+        run: ./gradlew :app:assembleDebug :app:assembleRelease --stacktrace
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nase-release-debug-apk
+          path: android/app/build/outputs/apk/debug/*.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nase-release-unsigned-apk
+          path: android/app/build/outputs/apk/release/*.apk

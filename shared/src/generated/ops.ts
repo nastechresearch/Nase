@@ -135,7 +135,6 @@ export const OPS: readonly OpSpec[] = [
     wire: "speak",
     mcp: "speak",
     kotlin: "speak",
-    cli: ["speak"],
   },
   {
     id: "ask_user",
@@ -143,7 +142,6 @@ export const OPS: readonly OpSpec[] = [
     wire: "ask_user",
     mcp: "ask_user",
     kotlin: "ask",
-    cli: ["ask_user","ask"],
   },
   {
     id: "confirm",
