@@ -13,4 +13,5 @@
     <string name="widget_hint">Ask Nase</string>
     <string name="widget_description">Start a voice ask without opening Nase.</string>
     <string name="tile_label">Ask Nase</string>
+    <string name="tile_stop_label">Stop Nase</string>
 </resources>

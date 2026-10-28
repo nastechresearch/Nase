@@ -1,0 +1,93 @@
+# Nase support and public metadata.
+#
+# Hand-maintained. Every value is traceable to a file in this repository; the
+# source is named in the comment above each group. If a needed value does not
+# exist in the tree, leave the TODO_OWNER_CONFIRM placeholder instead of
+# guessing, and list it in the change that adds this file.
+#
+# Bump `schema` only when a key is renamed or removed.
+
+schema: 1
+
+project:
+  name: Nase
+  tagline: "Nase is the hands. You pick the brain."        # README.md
+  license: MIT                                             # LICENSE
+  license_file: LICENSE                                    # LICENSE
+  copyright: "Copyright (c) 2026 Karl Magen David"         # LICENSE
+  min_android: "Android 11"                                # README.md, Requirements
+
+repo:
+  # Source: `git remote -v` -> origin.
+  # README.md "Code" links github.com/oroplex/nase instead, and the APK and
+  # release links under `downloads` below use that published repo. The values
+  # here follow the git remote; confirm which tracker is public before
+  # advertising this file.
+  url: https://github.com/nastechresearch/Nase
+  issues: https://github.com/nastechresearch/Nase/issues
+  new_issue: https://github.com/nastechresearch/Nase/issues/new/choose
+  default_branch: main                                     # origin/HEAD
+
+site:
+  homepage: https://nase.karlmagendavid.com                # README.md "Site"
+
+downloads:
+  # README.md "APK". These stay on the published repo named there.
+  apk: https://github.com/oroplex/nase/releases/latest/download/nase-latest.apk
+  releases: https://github.com/oroplex/nase/releases/latest
+  latest_manifest: https://download.nase.karlmagendavid.com/latest.json
+
+release:
+  # README.md "This tree" and the first CHANGELOG.md entry. Refresh each release.
+  version: "0.6.4"
+  version_code: 11
+  changelog: CHANGELOG.md
+
+docs:
+  # Paths are relative to the repository root.
+  readme: README.md
+  support: docs/support.md
+  changelog: CHANGELOG.md
+  play_policy: PLAY_POLICY.md
+  hidden_display_apps: docs/hidden-display-apps.md
+  environment: .env.example
+  license: LICENSE
+  mcp_setup:
+    file: README.md
+    anchor: mcp-setup
+    url: https://github.com/nastechresearch/Nase/blob/main/README.md#mcp-setup
+
+issue_forms:
+  directory: .github/ISSUE_TEMPLATE
+  config: .github/ISSUE_TEMPLATE/config.yml
+  bug: .github/ISSUE_TEMPLATE/bug.yml
+  feature: .github/ISSUE_TEMPLATE/feature.yml
+
+triage:
+  # One primary label per report, taken from the repo's own areas: android/,
+  # packages/mcp, relay/, shared/ (protocol + E2E crypto), and the README
+  # sections "Safety" and "MCP setup". A second label is fine when a report
+  # crosses areas. Keep names lowercase.
+  labels:
+    - name: bug
+      description: "Something Nase did that it should not have, or failed to do."
+    - name: docs
+      description: "README.md, CHANGELOG.md, PLAY_POLICY.md, or docs/ is wrong, stale, or unclear."
+    - name: android
+      description: "The Nase Companion app (android/): accessibility service, hidden display, typing, and app UI."
+    - name: mcp
+      description: "The MCP server, its tools, and listen mode (packages/mcp; README MCP setup)."
+    - name: relay
+      description: "The WebSocket relay (relay/), Nase Cloud, or a private relay."
+    - name: pairing/crypto
+      description: "Pairing links and QR codes, the six-digit safety code, and end-to-end encryption (shared/ protocol)."
+    - name: safety
+      description: "Confirmations before sending or paying, password-field masking, calls, and Stop."
+
+security:
+  # No security contact is published in this tree: README.md, LICENSE,
+  # PLAY_POLICY.md, CHANGELOG.md, and docs/ name none. The owner must supply
+  # the address, then mirror it in docs/support.md and
+  # .github/ISSUE_TEMPLATE/config.yml.
+  contact: TODO_OWNER_CONFIRM
+  public_issue_guidance: "Do not put exploit details in a public issue."

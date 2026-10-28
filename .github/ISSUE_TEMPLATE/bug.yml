@@ -1,0 +1,112 @@
+name: Bug report
+description: Something Nase did that it should not have, or failed to do.
+title: "[bug] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Nase masks password fields as `[password]` and refuses to type into them, but
+        screenshots, UI trees, and action logs can still contain personal data. Do not
+        paste passwords, API keys, pairing links, or safety codes. Replace private text
+        with placeholders such as `[address]`.
+
+  - type: input
+    id: android_version
+    attributes:
+      label: Android version
+      description: Settings > About phone > Android version. Nase requires Android 11 or newer.
+      placeholder: "Android 14"
+    validations:
+      required: true
+
+  - type: input
+    id: nase_version
+    attributes:
+      label: Nase version
+      description: The version shown by Settings > Check for updates, or the version in latest.json. If you built from source, say so and give the branch or commit.
+      placeholder: "0.6.4 (versionCode 11)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: computer
+    attributes:
+      label: Is a computer or MCP server involved?
+      description: The phone side is the same app in every setup.
+      options:
+        - "No - the brain runs on the phone with my own API key"
+        - "No - Grok Bot"
+        - "Yes - an MCP host on a computer"
+        - Not sure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: brain
+    attributes:
+      label: Which brain was in charge?
+      options:
+        - Claude (API key on the phone)
+        - OpenAI (API key on the phone)
+        - Gemini (API key on the phone)
+        - xAI Grok (API key on the phone)
+        - OpenRouter or another OpenAI-compatible endpoint (Advanced)
+        - Grok Bot (Nase template)
+        - An MCP host (Claude Desktop, Claude Code, Cursor, other)
+        - No brain / Nase Basics
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: asked
+    attributes:
+      label: What was the agent asked to do?
+      description: The request in your own words, including the app and the screen you started from.
+      placeholder: "Book a table on Resy for tomorrow at 7pm."
+    validations:
+      required: true
+
+  - type: textarea
+    id: happened
+    attributes:
+      label: What happened?
+      description: What the phone actually did, and what you expected instead. Paste the exact on-screen message or error if there is one, with secrets removed.
+      placeholder: "Nase opened Resy, then tapped the wrong date and stopped."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Does this involve pairing, crypto, or the relay, or only on-device behaviour?
+      options:
+        - Only on-device behaviour (no pairing, no relay)
+        - Pairing (link or QR, safety code)
+        - Encryption or crypto
+        - Relay or connection
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Optional. Number the steps if the problem repeats, and say whether it happens every time.
+      placeholder: |
+        1. Open Nase and tap Connect
+        2. Pick Claude and save a key
+        3. Ask ...
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Before submitting
+      options:
+        - label: I removed passwords, API keys, pairing links, and safety codes from this report.
+          required: true
