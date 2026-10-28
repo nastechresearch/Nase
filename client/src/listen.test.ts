@@ -240,6 +240,9 @@ describe("runListen", () => {
     await until(() => phone.waiting > 0, "the standing wait");
     const asked = phone.say("add 2 and 2");
     await until(() => phone.finished.length === 1, "the reply");
+    // The reply event is emitted after the `done` round trip, so the phone
+    // receiving the frame does not mean the event has fired yet.
+    await until(() => events.some((event) => event.type === "reply"), "the reply event");
     expect(phone.finished[0]).toEqual({ ref: asked.id, text: "Done: add 2 and 2", ok: true });
     expect(events.some((event) => event.type === "request" && event.text === "add 2 and 2")).toBe(true);
     expect(events.some((event) => event.type === "reply" && event.ok)).toBe(true);
