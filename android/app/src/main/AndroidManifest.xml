@@ -95,7 +95,7 @@
         </activity>
 
         <service
-            android:name=".a11yNaseAccessibilityService"
+            android:name=".a11y.NaseAccessibilityService"
             android:exported="true"
             android:label="@string/a11y_label"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
@@ -108,7 +108,7 @@
         </service>
 
         <service
-            android:name=".inputNaseInputMethodService"
+            android:name=".input.NaseInputMethodService"
             android:exported="true"
             android:icon="@mipmap/ic_launcher"
             android:label="@string/ime_label"
@@ -122,7 +122,7 @@
         </service>
 
         <service
-            android:name=".sessionNaseSessionService"
+            android:name=".session.NaseSessionService"
             android:exported="false"
             android:foregroundServiceType="mediaProjection|specialUse">
             <property
@@ -131,7 +131,7 @@
         </service>
 
         <service
-            android:name=".voiceNaseVoiceInteractionService"
+            android:name=".voice.NaseVoiceInteractionService"
             android:exported="true"
             android:label="@string/app_name"
             android:permission="android.permission.BIND_VOICE_INTERACTION">
@@ -144,12 +144,12 @@
         </service>
 
         <service
-            android:name=".voiceNaseVoiceSessionService"
+            android:name=".voice.NaseVoiceSessionService"
             android:exported="true"
             android:permission="android.permission.BIND_VOICE_INTERACTION" />
 
         <service
-            android:name=".voiceNaseRecognitionService"
+            android:name=".voice.NaseRecognitionService"
             android:exported="true"
             android:label="@string/app_name"
             android:permission="android.permission.BIND_RECOGNITION_SERVICE">
@@ -185,7 +185,7 @@
             android:turnScreenOn="true" />
 
         <receiver
-            android:name=".widgetNaseWidget"
+            android:name=".widget.NaseWidget"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
