@@ -7,7 +7,15 @@ import { Command } from "commander";
 import QRCode from "qrcode";
 import qrterminal from "qrcode-terminal";
 
-import { DEFAULT_RELAY, PAIRING_TTL_MS, pairPageLink, pairingLink, type PressKey } from "@nase/shared";
+import {
+  DEFAULT_RELAY,
+  OPS,
+  PAIRING_TTL_MS,
+  pairPageLink,
+  pairingLink,
+  type CommandOp,
+  type PressKey,
+} from "@nase/shared";
 
 import { SessionFile, defaultStatePath, runListen, type ListenEvent } from "./listen.ts";
 import { takeDisplay } from "./repl-args.ts";
@@ -187,17 +195,32 @@ async function repl(session: NaseSession): Promise<void> {
   }
 }
 
+/**
+ * REPL command names and aliases, from the `cli:` list of every op in
+ * descriptors/capabilities.yaml. Declaring a CLI name there is enough; the
+ * switch below only knows canonical wire ops.
+ */
+const CLI_OPS: ReadonlyMap<string, CommandOp> = new Map(
+  OPS.flatMap((op) => {
+    const names = op.cli;
+    const wire = op.wire;
+    if (!names || names.length === 0) return [];
+    if (!wire) throw new Error(`descriptor op "${op.id}" declares CLI names without a wire op`);
+    return names.map((name) => [name, wire] as const);
+  }),
+);
+
 async function dispatch(session: NaseSession, cmd: string, rest: string[]) {
+  const op = CLI_OPS.get(cmd);
+  if (!op) throw new Error(`unknown command: ${cmd}`);
   const { args, display } = takeDisplay(rest);
   const where = display ? { display } : {};
-  switch (cmd) {
+  switch (op) {
     case "screenshot":
       return session.request("screenshot", where);
-    case "tree":
     case "ui_tree":
       return session.request("ui_tree", where);
     case "wait_idle":
-    case "wait":
       return session.request("wait_idle", { timeoutMs: args[0] ? num(args[0]) : 4000, ...where }, 20_000);
     case "ping":
       return session.request("ping");
@@ -213,7 +236,6 @@ async function dispatch(session: NaseSession, cmd: string, rest: string[]) {
         ...where,
       });
     case "long_press":
-    case "longpress":
       return session.request("long_press", {
         x: num(args[0]),
         y: num(args[1]),
@@ -250,10 +272,8 @@ async function dispatch(session: NaseSession, cmd: string, rest: string[]) {
     }
     case "press":
       return session.request("press", { key: args[0] as PressKey, ...where });
-    case "open":
     case "open_app":
       return session.request("open_app", { packageName: args[0], ...where });
-    case "settings":
     case "open_settings":
       return session.request("open_settings", {
         name: args[0],

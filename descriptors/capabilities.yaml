@@ -147,7 +147,6 @@ ops:
     wire: speak
     mcp: speak
     kotlin: speak
-    cli: [speak]
     params:
       - { name: text, type: string, required: true }
 
@@ -156,7 +155,6 @@ ops:
     wire: ask_user
     mcp: ask_user
     kotlin: ask
-    cli: [ask_user, ask]
 
   - id: confirm
     summary: Request the owner's confirmation for a risky action.

@@ -16,8 +16,8 @@
 | `press` | press | key | key | press | Press a navigation or submit key. |
 | `open_app` | open_app | open_app | open_app | open_app, open | Open an installed app by package name or by name; the phone resolves names locally. |
 | `open_settings` | open_settings | open_settings | open_settings | open_settings, settings | Jump straight to a settings screen instead of tapping through menus. |
-| `speak` | speak | speak | speak | speak | Say something on the phone. |
-| `ask_user` | ask_user | ask_user | ask | ask_user, ask | Ask the owner a question and wait for the answer. |
+| `speak` | speak | speak | speak | — | Say something on the phone. |
+| `ask_user` | ask_user | ask_user | ask | — | Ask the owner a question and wait for the answer. |
 | `confirm` | confirm | confirm | — | — | Request the owner's confirmation for a risky action. |
 | `done` | done | done | done | — | Finish the task and report whether it succeeded. |
 | `wait_for_request` | wait_for_request | wait_for_request | — | — | Long-poll for the next request from the owner. |
